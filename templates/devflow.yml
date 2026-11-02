@@ -1,0 +1,32 @@
+# .devflow.yml —— 放在项目根目录，提交进仓库。字段说明见 dev-workflow/references/config.md
+# 不写的项会从项目文件推断。不要写机器相关的值（IP、主机名、密钥），它们放在本机配置或环境变量里。
+
+# 每个阶段都会读：技术栈、约定、要注意的事
+context: |
+  <语言和框架>；<数据库>；测试用 <测试框架>。
+  <项目约定，比如：界面文案用中文；不引入新的前端框架>
+
+docs_dir: docs/changes
+
+commands:
+  install: npm ci
+  lint: npm run lint
+  test: npm test
+  build: npm run build
+  e2e: npx playwright test
+  dev: npm run dev              # 远程浏览器要访问时，服务需监听 0.0.0.0
+  dev_url: http://localhost:3000
+
+rules:
+  requirements: []
+  design: []
+  implement: []
+  test: []
+
+release:
+  bump: patch
+  tag_prefix: v
+  publish: ""        # 例：使用 $release 发布 {version}
+  staging: ""
+  production: ""     # 例：使用 $deploy-view 部署 {tag}
+  post_check: ""     # 例：打开线上首页，确认版本号是 {version}
