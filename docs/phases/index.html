@@ -71,10 +71,10 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 
 <header>
   <h1>devflow 阶段约定</h1>
-  <p class="muted">5 个阶段 + 机器验证。先定约定，再按约定改写 skills。状态：<b>草案第 2 版，等你确认</b>。2026-11-05</p>
+  <p class="muted">5 个阶段 + 机器验证。先定约定，再按约定改写 skills。状态：<b>草案第 3 版，等你确认 d1–d6</b>。2026-11-05</p>
   <nav>
     <a href="#tldr">一句话</a><a href="#human">人做什么</a><a href="#machine">机器验证</a><a href="#levels">自主等级</a>
-    <a href="#phases">每个阶段</a><a href="#cross">贯穿所有阶段</a><a href="#why5">为什么是 5 个</a><a href="#map">新旧对照</a><a href="#ask">需要你拍板</a>
+    <a href="#env">环境和配置</a><a href="#phases">每个阶段</a><a href="#cross">贯穿所有阶段</a><a href="#why5">为什么是 5 个</a><a href="#map">新旧对照</a><a href="#ask">需要你拍板</a>
   </nav>
 </header>
 
@@ -161,6 +161,63 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
   </div>
 </section>
 
+<section id="env">
+  <h2>环境和配置放在哪 <span class="new">第 3 版</span></h2>
+  <p>按“全团队一样还是因人而异”“敏不敏感”分三处。<b>仓库里只写环境名和变量名，不写真实地址</b>；每个人的地址都在自己机器的本机配置里。</p>
+  <div class="tbl"><table>
+    <tr><th>信息</th><th>例子</th><th>放哪</th><th>进仓库</th></tr>
+    <tr><td><b>有哪些环境、怎么用</b>（全团队一样）</td><td>有 local / staging / production；各自的数据规则；验收在哪个环境做；部署命令</td><td>项目 <code>.devflow.yml</code>，地址只写变量名</td><td>进</td></tr>
+    <tr><td><b>每个人自己的环境和地址</b></td><td>你的开发机地址、staging 地址、浏览器访问你这台机器用的 IP</td><td>本机 <code>~/.config/devflow/config.yml</code>，按仓库根目录分组</td><td>不进</td></tr>
+    <tr><td><b>跨项目、和机器有关的</b></td><td>测试浏览器的 CDP 地址、vibeview 开关</td><td>同一个本机配置的顶层</td><td>不进</td></tr>
+    <tr><td><b>密钥和账号</b></td><td>测试账号密码、token</td><td>环境变量（配置里只写变量名）</td><td>绝不进</td></tr>
+  </table></div>
+<pre># 项目 .devflow.yml（进仓库）：定义有哪些环境，不写真实地址
+environments:
+  local:
+    start: npm run dev
+    url_env: DEVFLOW_LOCAL_URL            # 没提供时用 http://localhost:3000
+    data: 可随意读写，可重置
+  staging:
+    url_env: STAGING_URL
+    deploy: "使用 $deploy-view 部署到 staging"
+    data: 共享环境：只能用 e2e- 开头的测试数据，用完清理
+    account_env: [STAGING_TEST_USER, STAGING_TEST_PASS]
+  production:
+    url_env: PROD_URL
+    data: 只读：只做上线后检查，不提交表单、不写数据
+test:
+  e2e_env: local        # 开发时跑浏览器测试
+  verify_env: staging   # 机器关口 C 独立验证；没有 staging 就用 local
+
+# 本机 ~/.config/devflow/config.yml（不进仓库）：只写你自己的
+browser:
+  cdp_url_env: DEVFLOW_BROWSER_CDP
+  host: 192.168.1.20                      # 浏览器访问这台机器用的地址
+preview:
+  vibeview: auto
+projects:
+  /home/you/github/your-project:           # 键是仓库根目录
+    environments:
+      local:   { url: http://192.168.1.20:3000 }
+      staging: { url: https://staging.internal.example.com }</pre>
+  <h3>地址怎么取</h3>
+  <p>按顺序取第一个有值的：① 环境变量（<code>url_env</code> 指的那个）② 本机配置里这个项目下的 <code>url</code> ③ <code>.devflow.yml</code> 里的默认值（只允许 localhost 这类不含真实主机的值）。</p>
+  <h3>每个阶段用哪个环境</h3>
+  <div class="tbl"><table>
+    <tr><th>阶段</th><th>环境</th><th>权限</th></tr>
+    <tr><td>开发（单元、集成测试）</td><td>不需要，或本机临时数据库</td><td>—</td></tr>
+    <tr><td>测试（脚本化 E2E、探索式检查）</td><td><code>e2e_env</code>，默认 local</td><td>可以随意造数据</td></tr>
+    <tr><td>机器关口 C（独立验证）</td><td><code>verify_env</code></td><td>按该环境的 data 规则，共享环境只动测试数据</td></tr>
+    <tr><td>发布后检查</td><td>production</td><td>只读</td></tr>
+  </table></div>
+  <h3>第一次在这台机器上用这个项目</h3>
+  <p>AI 读 <code>.devflow.yml</code> 知道需要哪些环境，能推出来的自己补（local 地址、<code>browser.host</code>），推不出来的（比如 staging 地址）<b>一次性问你</b>，答案写进本机配置这个项目下，之后不再问。这次提问列入“允许问人的例外”。项目专属的 <code>verify-&lt;项目名&gt;</code> skill 进仓库，但只认环境名，不写地址。</p>
+  <div class="grid3" style="margin-top:10px">
+    <div class="card"><h4><span class="chip c-mach">已定 e1</span></h4><p>个人配置都放本机配置，按仓库根目录分组，项目目录里不留个人文件。</p></div>
+    <div class="card"><h4><span class="chip c-mach">已定 e2</span></h4><p>仓库里只写环境名和变量名，一律不写真实地址。</p></div>
+  </div>
+</section>
+
 <section id="phases">
   <h2>每个阶段的约定</h2>
 
@@ -222,6 +279,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
     <div class="bd">
       <div class="k">进入条件</div><div class="v">可提测</div>
       <div class="k">做什么</div><div class="v"><ol>
+        <li>按 <code>e2e_env</code> / <code>verify_env</code> 取环境地址；这台机器第一次用这个项目时，缺的地址一次性问你并记进本机配置</li>
         <li>项目还没有验证 skill 时先生成并跑通</li>
         <li>补齐场景对应的测试；每个浏览器场景一个 Playwright 测试，提交进仓库</li>
         <li><span class="chip c-browser">浏览器</span> 探索式检查，修复（先写回归测试）</li>
@@ -307,7 +365,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
     <p class="rec">默认 A：先用同一个模型的全新子 agent，简单可靠</p><p>B：装了 Codex 时，再加一个 Codex 验证者做第二意见（会消耗 Codex 额度）</p></div>
 </section>
 
-<footer>devflow 阶段约定 · 草案第 2 版 · dev-skills-build/docs/phases/index.html</footer>
+<footer>devflow 阶段约定 · 草案第 3 版 · dev-skills-build/docs/phases/index.html</footer>
 </div>
 </body>
 </html>
