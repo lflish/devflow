@@ -9,7 +9,7 @@
   --bg:#f6f8fb; --surface:#fff; --text:#1e293b; --muted:#64748b; --line:#e2e8f0; --soft:#f8fafc;
   --accent:#2563eb; --accent-soft:#eff6ff; --human:#b45309; --human-soft:#fffbeb;
   --agent:#7c3aed; --agent-soft:#f5f3ff; --browser:#0f766e; --browser-soft:#f0fdfa;
-  --page:#be185d; --page-soft:#fdf2f8; --ok:#15803d; --ok-soft:#f0fdf4;
+  --page:#be185d; --page-soft:#fdf2f8; --ok:#15803d; --ok-soft:#f0fdf4; --bad:#b91c1c; --bad-soft:#fef2f2;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
@@ -21,32 +21,37 @@ p{margin:6px 0}
 .muted{color:var(--muted)}
 section{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin:16px 0}
 code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;background:#f1f5f9;padding:1px 5px;border-radius:4px}
+nav{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 4px}
+nav a{font-size:13px;color:var(--accent);text-decoration:none;background:var(--surface);border:1px solid var(--line);padding:3px 10px;border-radius:999px}
 .chip{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:999px;white-space:nowrap}
 .c-human{background:var(--human-soft);color:var(--human)}
+.c-mach{background:var(--ok-soft);color:var(--ok)}
 .c-agent{background:var(--agent-soft);color:var(--agent)}
 .c-browser{background:var(--browser-soft);color:var(--browser)}
 .c-page{background:var(--page-soft);color:var(--page)}
 .c-auto{background:var(--accent-soft);color:var(--accent)}
-.c-ok{background:var(--ok-soft);color:var(--ok)}
+.c-bad{background:var(--bad-soft);color:var(--bad)}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
 th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
 th{background:var(--soft);font-weight:600;white-space:nowrap}
 .tbl{overflow-x:auto}
 .lead{font-size:16px}
-/* 5-phase band */
-.band{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin:12px 0 4px}
+.band{display:flex;flex-wrap:wrap;align-items:stretch;margin:12px 0 4px}
 .ph{flex:1 1 150px;min-width:140px;background:var(--accent-soft);border:1px solid #bfdbfe;border-radius:10px;padding:10px 12px;margin:4px}
 .ph .n{font-size:12px;color:var(--accent);font-weight:700}
 .ph .t{font-size:18px;font-weight:700}
 .ph .s{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--muted)}
-.ph .g{margin-top:6px}
+.ph .g{margin-top:6px;display:flex;flex-wrap:wrap;gap:4px}
 .cross{margin:6px 4px 0;padding:8px 12px;border:1px dashed var(--line);border-radius:10px;font-size:13.5px;background:var(--soft)}
-/* contract cards */
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:#fcfdff}
+.card h4{margin:0 0 6px;font-size:15px}
+.card ol,.card ul{margin:4px 0;padding-left:20px;font-size:13.5px}
 .contract{border:1px solid var(--line);border-radius:12px;margin:14px 0;overflow:hidden}
 .contract .hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;padding:12px 16px;background:var(--soft);border-bottom:1px solid var(--line)}
 .contract .hd .t{font-size:18px;font-weight:700}
 .contract .hd .s{font-family:ui-monospace,Menlo,monospace;color:var(--accent);font-size:13px}
-.contract .bd{display:grid;grid-template-columns:150px 1fr;gap:0}
+.contract .bd{display:grid;grid-template-columns:150px 1fr}
 .contract .k{padding:8px 16px;font-weight:600;color:var(--muted);font-size:13px;border-bottom:1px solid var(--line)}
 .contract .v{padding:8px 16px;font-size:14px;border-bottom:1px solid var(--line)}
 .contract .bd>div:nth-last-child(-n+2){border-bottom:none}
@@ -56,6 +61,8 @@ th{background:var(--soft);font-weight:600;white-space:nowrap}
 .q{border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin:8px 0}
 .q h4{margin:0 0 4px;font-size:15px}
 .q .rec{color:var(--ok);font-weight:600}
+.new{font-size:11px;font-weight:700;color:#fff;background:var(--ok);border-radius:4px;padding:0 5px;margin-left:4px;vertical-align:2px}
+pre{background:#0f172a;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:12.5px;line-height:1.55;margin:8px 0}
 footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 </style>
 </head>
@@ -64,176 +71,243 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 
 <header>
   <h1>devflow 阶段约定</h1>
-  <p class="muted">按业界实践把流程定为 5 个阶段，先定每个阶段的约定，再按约定改写 skills。状态：<b>草案，等你确认</b>。2026-11-05</p>
+  <p class="muted">5 个阶段 + 机器验证。先定约定，再按约定改写 skills。状态：<b>草案第 2 版，等你确认</b>。2026-11-05</p>
+  <nav>
+    <a href="#tldr">一句话</a><a href="#human">人做什么</a><a href="#machine">机器验证</a><a href="#levels">自主等级</a>
+    <a href="#phases">每个阶段</a><a href="#cross">贯穿所有阶段</a><a href="#why5">为什么是 5 个</a><a href="#map">新旧对照</a><a href="#ask">需要你拍板</a>
+  </nav>
 </header>
 
-<section>
-  <h2>一句话</h2>
-  <p class="lead"><b>需求 → 设计 → 开发 → 测试 → 发布</b>。5 个阶段，4 个关口，只有“开发”没有关口。skills 从 9 个减为 7 个：1 个总纲、5 个阶段各一个、1 个通用评审。</p>
+<section id="tldr">
+  <h2>一句话 <span class="new">第 2 版</span></h2>
+  <p class="lead"><b>需求 → 设计 → 开发 → 测试 → 发布</b>。人只做两类事：<b>定方向</b>（需求确认）和<b>放行不可逆的动作</b>（上生产）。方案、验收、合并由<b>机器关口</b>放行：没写过这段代码的验证 agent 在真实环境里跑一遍，给出“通过”才往下走。人看的是事后汇总，不是逐个确认。</p>
   <div class="band">
-    <div class="ph"><div class="n">阶段 1</div><div class="t">需求</div><div class="s">dev-requirements</div><div class="g"><span class="chip c-human">关口 A</span></div></div>
-    <div class="ph"><div class="n">阶段 2</div><div class="t">设计</div><div class="s">dev-design</div><div class="g"><span class="chip c-human">关口 B</span></div></div>
-    <div class="ph"><div class="n">阶段 3</div><div class="t">开发</div><div class="s">dev-build</div><div class="g"><span class="chip c-auto">无关口，可提测即进入测试</span></div></div>
-    <div class="ph"><div class="n">阶段 4</div><div class="t">测试</div><div class="s">dev-test</div><div class="g"><span class="chip c-human">关口 C</span></div></div>
-    <div class="ph"><div class="n">阶段 5</div><div class="t">发布</div><div class="s">dev-release</div><div class="g"><span class="chip c-human">关口 D</span></div></div>
+    <div class="ph"><div class="n">阶段 1</div><div class="t">需求</div><div class="s">dev-requirements</div><div class="g"><span class="chip c-human">人：关口 A</span></div></div>
+    <div class="ph"><div class="n">阶段 2</div><div class="t">设计</div><div class="s">dev-design</div><div class="g"><span class="chip c-mach">机器关口 B</span></div></div>
+    <div class="ph"><div class="n">阶段 3</div><div class="t">开发</div><div class="s">dev-build</div><div class="g"><span class="chip c-mach">可提测</span></div></div>
+    <div class="ph"><div class="n">阶段 4</div><div class="t">测试</div><div class="s">dev-test</div><div class="g"><span class="chip c-mach">机器关口 C</span></div></div>
+    <div class="ph"><div class="n">阶段 5</div><div class="t">发布</div><div class="s">dev-release</div><div class="g"><span class="chip c-mach">合并</span><span class="chip c-human">人：上生产</span></div></div>
   </div>
-  <div class="cross">贯穿所有阶段：<code>dev-workflow</code>（总纲：状态、续做、共用规则）· <code>dev-review</code>（通用评审：开发阶段调用，也能单独用）· 复盘（以后再加）</div>
+  <div class="cross"><span class="chip c-human">人</span> 必须你来　<span class="chip c-mach">机器关口</span> 独立验证通过就放行，结果进汇总，你事后看。自主等级 L1 时，机器关口之后再请你看一眼。</div>
 </section>
 
-<section>
-  <h2>为什么是 5 个</h2>
-  <p>理论标准拆得很细，实践中把总是一起做的合并。和网络分层一样：ISO/IEC/IEEE 12207 的 14 个技术过程，就像 OSI 七层；团队日常走的 5 步，就像 TCP/IP 五层。</p>
+<section id="human">
+  <h2>人做什么，机器做什么 <span class="new">新</span></h2>
+  <div class="grid3">
+    <div class="card"><h4><span class="chip c-human">只有人能做</span></h4><ul>
+      <li><b>定方向</b>：要做什么、为什么、做完怎样算对（关口 A）</li>
+      <li><b>口味</b>：任何实验都定不了的产品偏好</li>
+      <li><b>难以回头的决定</b>：数据模型和迁移、对外接口、新的基础设施或付费依赖</li>
+      <li><b>放松检查</b>：删测试、调阈值、加忽略规则</li>
+      <li><b>不可逆或对外</b>：上生产、删数据、强推、对外发消息</li></ul></div>
+    <div class="card"><h4><span class="chip c-mach">机器验证代替确认</span></h4><ul>
+      <li>方案是否覆盖需求、前提是否成立（机器关口 B）</li>
+      <li>代码是否满足每个验收场景（机器关口 C）</li>
+      <li>能合并到主干（凭验证结论，不凭 CI 全绿）</li>
+      <li>“选哪个方案”中能用运行结果回答的：做原型跑一下</li></ul></div>
+    <div class="card"><h4>人什么时候看</h4><ul>
+      <li>关口 A：每个需求一次（L3 时一批需求一次）</li>
+      <li>汇总：机器关口每放行一次就更新，第一句说清有没有事等你</li>
+      <li>暂停项：只暂停那一件事，其他照常推进</li>
+      <li>上生产前：一次确认</li></ul></div>
+  </div>
+</section>
+
+<section id="machine">
+  <h2>机器验证：怎样才算可信 <span class="new">新</span></h2>
+  <p class="muted">借鉴 pstack 的 autopilot / shipping / interrogate。机器关口放行的唯一依据是<b>验证结论</b>，不是 CI 全绿，也不是写代码的 agent 说“做完了”。</p>
   <div class="tbl"><table>
-    <tr><th>devflow 阶段</th><th>ISO/IEC/IEEE 12207 技术过程</th><th>团队里的叫法</th></tr>
-    <tr><td><b>需求</b></td><td>业务或使命分析、干系人需求定义、系统/软件需求定义</td><td>需求评审、PRD</td></tr>
-    <tr><td><b>设计</b></td><td>架构定义、设计定义、系统分析</td><td>技术评审、技术方案、排期拆任务</td></tr>
-    <tr><td><b>开发</b></td><td>实现、（部分）集成</td><td>编码、自测、代码评审</td></tr>
-    <tr><td><b>测试</b></td><td>集成、验证、确认</td><td>提测、QA、验收</td></tr>
-    <tr><td><b>发布</b></td><td>交付（transition）</td><td>上线</td></tr>
-    <tr><td class="muted">不在单个需求内</td><td class="muted">运行、维护、退役</td><td class="muted">运维，项目持续在做</td></tr>
+    <tr><th>规则</th><th>为什么</th></tr>
+    <tr><td><b>验证者没写过这段代码</b>：每次派全新的子 agent</td><td>写代码的人只会检查自己想做的东西</td></tr>
+    <tr><td><b>在真实环境里跑</b>：重跑测试和 lint，并用测试浏览器把每个关键场景像用户一样走一遍</td><td>CI 和单元测试证明不了“用户用起来是对的”</td></tr>
+    <tr><td><b>问题要有运行证据</b>：每个问题附上命令、输出和应有的结果；跑不出来的不算</td><td>听起来有道理的意见不拦路，减少误报</td></tr>
+    <tr><td><b>结论绑定提交</b>：结论写明对应的 commit；之后代码再变，要重新验证（小改一个验证者，大改全套）</td><td>验证过的必须就是要合并的</td></tr>
+    <tr><td><b>只有用户会遇到的问题才拦</b>：功能错、检查没过、文档写错；其余记进后续</td><td>不因吹毛求疵卡住流水线</td></tr>
+    <tr><td><b>放松检查必须交给人</b>：验证者发现测试、阈值、超时被放松，一律暂停这一项</td><td>想过关的人最想放松检查</td></tr>
   </table></div>
+  <h3>结论的三种结果</h3>
+  <div class="grid3">
+    <div class="card"><h4><span class="chip c-mach">通过</span></h4><p>往下走，进汇总。</p></div>
+    <div class="card"><h4><span class="chip c-auto">通过，有备注</span></h4><p>往下走，备注进后续清单和汇总。</p></div>
+    <div class="card"><h4><span class="chip c-bad">不通过</span></h4><p>回到开发修复，修完重新验证。同一问题 3 轮不过才找你。</p></div>
+  </div>
+  <h3>项目专属的验证 skill（借鉴 pstack create-verification-skill）</h3>
+  <p>每个项目第一次进入测试阶段时，生成一个 <code>verify-&lt;项目名&gt;</code> skill，写清：怎么启动、怎么检查实例状态、怎么像用户一样操作（真实的选择器和命令）、证据存哪、怎么清理；再为 3–5 个主要功能各写一份“怎么操作、看到什么算对”。生成后必须实际跑通一个功能才算交付。之后每次验证都用它，不再临时摸索。</p>
 </section>
 
-<section>
+<section id="levels">
+  <h2>自主等级：你想参与多少 <span class="new">新</span></h2>
+  <p>写在 <code>.devflow.yml</code> 的 <code>autonomy</code>，也可以在提需求时说“这个按 L3 跑”。</p>
+  <div class="tbl"><table>
+    <tr><th>等级</th><th>适用</th><th>你参与的点</th></tr>
+    <tr><td><b>L1 跟着看</b></td><td>刚开始用、新项目、高风险改动</td><td>关口 A；机器关口 B、C 通过后再请你看一眼；合并和上生产前确认</td></tr>
+    <tr><td><b>L2 常规</b></td><td>信任建立后的日常需求</td><td>关口 A；机器关口自动放行，你看汇总；合并凭验证结论；<b>上生产前确认</b></td></tr>
+    <tr><td><b>L3 批量</b></td><td>一批互相独立的小需求、迁移、清理</td><td><b>一次</b>确认整批需求和完成条件；之后自动跑到合并；上生产前确认一次；第二天看汇总</td></tr>
+  </table></div>
+  <div class="grid3" style="margin-top:12px">
+    <div class="card"><h4>所有等级都不变</h4><ul>
+      <li>难以回头的决定、改你定下的需求、放松检查 → 只暂停这一项</li>
+      <li>上生产、删数据、强推、对外发消息 → 永远要你确认</li></ul></div>
+    <div class="card"><h4>从 L1 升到 L2 的条件（来自 pstack）</h4><ol>
+      <li>这个项目已经用 L1 跑过 2–3 个需求</li>
+      <li>项目专属验证 skill 已生成并跑通</li>
+      <li>机器验证能拦下问题（有过“不通过”并修好）</li>
+      <li>反复出现的错误已经变成自动检查</li></ol></div>
+    <div class="card"><h4>汇总长什么样（借鉴 pstack ketchup）</h4><ul>
+      <li>第一句：有没有事等你</li>
+      <li>等你的事逐条列：要你做的决定、推荐、依据、风险</li>
+      <li>做了什么：截图在前，一句话一件事</li>
+      <li>同时更新同一个 vibeview 汇总页</li></ul></div>
+  </div>
+</section>
+
+<section id="phases">
   <h2>每个阶段的约定</h2>
-  <p class="muted">每个阶段写清 6 件事。skill 按这里写，不再自己发明边界。</p>
 
   <div class="contract">
-    <div class="hd"><span class="t">1 需求</span><span class="s">dev-requirements</span><span class="chip c-human">评审消息（必要时）+ 关口 A</span></div>
+    <div class="hd"><span class="t">1 需求</span><span class="s">dev-requirements</span><span class="chip c-human">人：评审消息（必要时）+ 关口 A</span></div>
     <div class="bd">
       <div class="k">进入条件</div><div class="v">有新想法或新需求；或 spec 状态是“草案”</div>
       <div class="k">做什么</div><div class="v"><ol>
-        <li>定规模，建需求文件夹和本地分支（微小改动直接改，不走流程）</li>
+        <li>定规模，建需求文件夹和本地分支（微小改动直接改）</li>
         <li>先查代码和文档</li>
-        <li>需求评审：前提挑战、产品方案（含最小可行）、范围模式、缺口扫描</li>
+        <li>需求评审：前提挑战、产品方案（含最小可行）、范围模式、缺口扫描；能用原型回答的问题先做原型</li>
         <li><span class="chip c-human">你</span> 一条评审消息，全部带推荐（没有歧义时跳过）</li>
-        <li>写 spec：需求写成“系统必须…”，每条配场景</li>
+        <li>写 spec：需求写成“系统必须…”，每条配场景；写明完成条件</li>
         <li><span class="chip c-agent">子 agent</span> 新人通读检查</li>
         <li><span class="chip c-page">vibeview</span> 效果页（有界面或流程时）</li></ol></div>
       <div class="k">产物</div><div class="v"><code>spec.md</code>、<code>decisions.md</code>、<code>pages/prototype/</code></div>
-      <div class="k">结束于</div><div class="v"><span class="chip c-human">关口 A</span> 你看：要做 / 不做、关键场景、假设、效果页 → 状态改为“已确认”</div>
-      <div class="k">小规模</div><div class="v">不在这里停，直接进设计；需求和方案合成一次确认（关口 AB）</div>
+      <div class="k">结束于</div><div class="v"><span class="chip c-human">关口 A</span> 你看：要做 / 不做、关键场景、假设、效果页 → “已确认”。L3 时一批需求一页确认</div>
+      <div class="k">小规模</div><div class="v">关口 A 里顺带列出技术方案要点，确认后直接进开发</div>
       <div class="k">不做的事</div><div class="v">不问代码能查到的；不问实现方法；不悄悄扩大范围；关口前不写产品代码</div>
     </div>
   </div>
 
   <div class="contract">
-    <div class="hd"><span class="t">2 设计</span><span class="s">dev-design</span><span class="chip c-human">关口 B</span><span class="muted" style="font-size:13px">合并原 dev-design + dev-plan</span></div>
+    <div class="hd"><span class="t">2 设计</span><span class="s">dev-design</span><span class="chip c-mach">机器关口 B</span></div>
     <div class="bd">
-      <div class="k">进入条件</div><div class="v">关口 A 通过（小规模：需求写完）</div>
+      <div class="k">进入条件</div><div class="v">关口 A 通过</div>
       <div class="k">做什么</div><div class="v"><ol>
-        <li>选方案：2–3 个做法按原则选，难分高下的记为口味型 d</li>
-        <li>技术方案：结构、接口、数据、状态、安全、需求覆盖（小规模只写 5–10 行）</li>
+        <li>选方案：能实验的做原型定，其余按原则选</li>
+        <li>技术方案：结构、接口、数据、状态、安全、需求覆盖</li>
         <li>前置验证：设计依赖的前提实际跑一遍</li>
         <li>测试计划：每个场景分到单元 / 集成 / 浏览器</li>
         <li>拆任务：文件、接口、对应场景、测试断言、完成定义</li>
-        <li><span class="chip c-agent">子 agent</span> 工程评审（最后跑，审的是方案加任务）</li>
-        <li><span class="chip c-page">vibeview</span> 方案简报页</li></ol></div>
-      <div class="k">产物</div><div class="v"><code>design.md</code>（小规模没有）、<code>tasks.md</code>、<code>pages/plan/</code></div>
-      <div class="k">结束于</div><div class="v"><span class="chip c-human">关口 B</span> 你看：方案、待定的 d 和 c、任务数、风险 → 状态改为“开发中”</div>
-      <div class="k">小规模</div><div class="v">关口 AB：需求部分和方案部分一页确认</div>
-      <div class="k">不做的事</div><div class="v">不停下来问“用 A 还是 B”；不为以后可能用到加抽象；不写“处理边界情况”这种空话</div>
+        <li><span class="chip c-agent">子 agent</span> 独立工程评审（最后跑）</li></ol></div>
+      <div class="k">产物</div><div class="v"><code>design.md</code>、<code>tasks.md</code>、方案简报（进汇总页）</div>
+      <div class="k">结束于</div><div class="v"><span class="chip c-mach">机器关口 B</span> 通过条件：每条需求有着落、前置验证全过、工程评审没有未处理的错误 → “开发中”。难以回头的决定暂停这一项交给你，其余任务照常开始</div>
+      <div class="k">小规模</div><div class="v">跳过这个阶段</div>
+      <div class="k">不做的事</div><div class="v">不停下来问“用 A 还是 B”；不为以后可能用到加抽象；不写空话</div>
     </div>
   </div>
 
   <div class="contract">
-    <div class="hd"><span class="t">3 开发</span><span class="s">dev-build</span><span class="chip c-auto">无关口</span><span class="muted" style="font-size:13px">合并原 dev-implement，并调用 dev-review</span></div>
+    <div class="hd"><span class="t">3 开发</span><span class="s">dev-build</span><span class="chip c-mach">可提测</span></div>
     <div class="bd">
-      <div class="k">进入条件</div><div class="v">关口 B 通过；或关口 C 打回后加了返工任务</div>
+      <div class="k">进入条件</div><div class="v">机器关口 B 通过；或验证不通过后回来返工</div>
       <div class="k">做什么</div><div class="v"><ol>
         <li>逐个任务：先写测试并确认失败 → 实现 → 跑测试 → 提交 → 记进度</li>
-        <li>遇到问题自己裁决并记录，只有 4 种情况停下</li>
-        <li>全部任务完成后跑全量单元、集成测试和 lint</li>
-        <li><span class="chip c-agent">子 agent</span> 调用 dev-review：明确错误先写回归测试再修，其余记成 d / c</li></ol></div>
+        <li>遇到问题自己裁决并记录</li>
+        <li>全量单元、集成测试和 lint</li>
+        <li><span class="chip c-agent">子 agent</span> 调用 dev-review：问题要有运行证据；明确错误先写回归测试再修</li></ol></div>
       <div class="k">产物</div><div class="v">代码和提交、<code>tasks.md</code> 进度、<code>review.md</code></div>
-      <div class="k">结束于</div><div class="v"><b>可提测</b>就自动进入测试，同时满足：① 任务都完成或已标“阻塞” ② 单元、集成测试和 lint 全过 ③ 评审没有未处理的严重问题（修不了的已记成 c） ④ 没有未提交的改动</div>
-      <div class="k">你参与</div><div class="v">0 次（除不可逆、安全敏感、对外动作、需求走不通这 4 种情况）</div>
-      <div class="k">不做的事</div><div class="v">不一次做多个任务；不重构范围外代码；不放松测试来过关；不推送到远程；浏览器测试不在这里写</div>
+      <div class="k">结束于</div><div class="v"><span class="chip c-mach">可提测</span> 任务都完成或标“阻塞”；测试和 lint 全过；评审没有未处理的严重问题；没有未提交的改动 → 自动进入测试</div>
+      <div class="k">你参与</div><div class="v">0 次（除只有人能做的那几类事）</div>
+      <div class="k">不做的事</div><div class="v">不一次做多个任务；不重构范围外代码；不放松测试来过关；不推送到远程</div>
     </div>
   </div>
 
   <div class="contract">
-    <div class="hd"><span class="t">4 测试</span><span class="s">dev-test</span><span class="chip c-human">关口 C</span><span class="muted" style="font-size:13px">合并原 dev-test + dev-accept</span></div>
+    <div class="hd"><span class="t">4 测试</span><span class="s">dev-test</span><span class="chip c-mach">机器关口 C</span></div>
     <div class="bd">
-      <div class="k">进入条件</div><div class="v">开发阶段“可提测”</div>
+      <div class="k">进入条件</div><div class="v">可提测</div>
       <div class="k">做什么</div><div class="v"><ol>
-        <li>场景对照表，补齐缺的测试</li>
-        <li><span class="chip c-browser">浏览器</span> 连远程浏览器（CDP），确认能打开被测服务；连不上退回本机无头浏览器</li>
-        <li><span class="chip c-browser">浏览器</span> 每个浏览器场景一个 Playwright 测试，提交进仓库，截图留证</li>
-        <li><span class="chip c-browser">浏览器</span> 探索式检查：表单、导航、空/出错状态、控制台、手机宽度、权限</li>
-        <li>修复：先写回归测试 → 最小修复 → 复测 → 提交</li>
-        <li>验收核对：完整、正确、一致、干净</li>
-        <li><span class="chip c-page">vibeview</span> 验收页：结论、紧急、待定的 d / c、场景和截图</li></ol></div>
-      <div class="k">产物</div><div class="v">浏览器测试代码、<code>test-report.md</code>、<code>evidence/</code>、<code>pages/accept/</code></div>
-      <div class="k">结束于</div><div class="v"><span class="chip c-human">关口 C</span> 你看验收页 → 状态改为“已完成”；要改代码的回复 → 加返工任务，回到开发</div>
-      <div class="k">修复的评审</div><div class="v">测试中的修复，改动超过 5 个文件或改了接口时，再调一次 dev-review（见下方 d3）</div>
-      <div class="k">不做的事</div><div class="v">不改测试迁就错误的实现；不用操作你个人浏览器的工具；不悄悄略过浏览器测试</div>
+        <li>项目还没有验证 skill 时先生成并跑通</li>
+        <li>补齐场景对应的测试；每个浏览器场景一个 Playwright 测试，提交进仓库</li>
+        <li><span class="chip c-browser">浏览器</span> 探索式检查，修复（先写回归测试）</li>
+        <li><span class="chip c-agent">子 agent</span><span class="chip c-browser">浏览器</span> <b>独立验证</b>：没写代码的验证者重跑测试、在真实浏览器里走每个关键场景、审 diff，给出结论（绑定 commit）</li>
+        <li><span class="chip c-page">vibeview</span> 更新汇总页：结论、截图、待你处理的事</li></ol></div>
+      <div class="k">产物</div><div class="v">浏览器测试代码、<code>test-report.md</code>（含验证结论）、<code>evidence/</code></div>
+      <div class="k">结束于</div><div class="v"><span class="chip c-mach">机器关口 C</span> 结论“通过”或“通过，有备注” → “已完成”。“不通过” → 回开发，修完重新验证</div>
+      <div class="k">不做的事</div><div class="v">不改测试迁就错误的实现；不用操作你个人浏览器的工具；浏览器测试没做不能算通过</div>
     </div>
   </div>
 
   <div class="contract">
-    <div class="hd"><span class="t">5 发布</span><span class="s">dev-release</span><span class="chip c-human">关口 D</span><span class="muted" style="font-size:13px">原 dev-cicd 改名</span></div>
+    <div class="hd"><span class="t">5 发布</span><span class="s">dev-release</span><span class="chip c-mach">合并</span><span class="chip c-human">人：上生产</span></div>
     <div class="bd">
-      <div class="k">进入条件</div><div class="v">关口 C 通过；或你说“发布”“上线”“部署”</div>
+      <div class="k">进入条件</div><div class="v">机器关口 C 通过；或你说“发布”“上线”</div>
       <div class="k">做什么</div><div class="v"><ol>
-        <li>了解现有 CI 和部署方式，优先沿用</li>
-        <li>CI（需要时）：和本地一样跑，CI 里用本机无头浏览器</li>
-        <li><span class="chip c-human">你</span> 关口 D：推送、PR、合并、发布、部署、上线后检查，一份清单一次确认</li>
-        <li>逐步执行，每步记录；部署交给项目自己的方式</li>
-        <li><span class="chip c-browser">浏览器</span> 上线后检查</li></ol></div>
-      <div class="k">产物</div><div class="v">版本、CI 配置（需要时）、上线记录（写在 spec 变更记录里）</div>
-      <div class="k">结束于</div><div class="v">执行完 → 状态改为“已发布”；你回“跳过” → 停在“已完成”</div>
-      <div class="k">不做的事</div><div class="v">不一个一个问；失败时不强推、不删 tag、不手改服务器</div>
+        <li>CI（需要时）：和本地一样跑</li>
+        <li>推送、开 PR、等 CI；合并前检查结论还覆盖要合并的代码，不覆盖就重新验证</li>
+        <li><span class="chip c-mach">合并</span> L2 / L3 凭验证结论合并；L1 先请你确认</li>
+        <li><span class="chip c-human">你</span> 发布和上生产：一份清单一次确认</li>
+        <li><span class="chip c-browser">浏览器</span> 上线后检查，结果进汇总</li></ol></div>
+      <div class="k">产物</div><div class="v">合并记录、版本、上线记录</div>
+      <div class="k">结束于</div><div class="v">上线完成 → “已发布”；不上线 → 停在“已合并”</div>
+      <div class="k">不做的事</div><div class="v">CI 全绿不等于可以合并；失败时不强推、不删 tag、不手改服务器</div>
     </div>
   </div>
 </section>
 
-<section>
+<section id="cross">
   <h2>贯穿所有阶段</h2>
   <div class="tbl"><table>
-    <tr><th>skill</th><th>做什么</th><th>谁用</th></tr>
-    <tr><td><code>dev-workflow</code></td><td>总纲：状态行和续做判断；共用规则（决定分类、6 条原则、4 种停止情况、提问和关口简报格式、配置、vibeview 页面）</td><td>每个阶段开头先读；你说“继续”时触发</td></tr>
-    <tr><td><code>dev-review</code></td><td>独立子 agent 评审：两轮清单，明确错误先写回归测试再修，检查被放松的一律交你决定</td><td>开发阶段调用；你单独说“评审一下这段代码”时只给结果、不改代码</td></tr>
-    <tr><td class="muted">复盘</td><td class="muted">把反复出现的问题沉淀成规则（借鉴 pstack 的 reflect / correct）</td><td class="muted">以后再加（见 d4）</td></tr>
+    <tr><th>skill</th><th>做什么</th></tr>
+    <tr><td><code>dev-workflow</code></td><td>总纲：状态行和续做；自主等级；共用规则（决定分类、原则、只有人能做的事、机器验证规则、汇总格式、配置、vibeview 页面）</td></tr>
+    <tr><td><code>dev-review</code></td><td>通用评审：开发阶段调用；你单独说“评审一下这段代码”时只给结果、不改代码</td></tr>
+    <tr><td class="muted">复盘</td><td class="muted">以后再加：把反复出现的问题变成自动检查（升到 L2 的第 4 个条件会用到）</td></tr>
   </table></div>
-  <h3>状态跟着阶段走</h3>
-  <p>草案（需求）→ 已确认（设计）→ 开发中（开发）→ 测试中（测试）→ 已完成（等发布）→ 已发布；任何时候可以“搁置”。</p>
-  <p class="muted">状态行仍是三个字段：状态 / 阶段 / 待关口。“阶段”的值改为新的 skill 名。</p>
+  <p style="margin-top:10px">状态：草案 → 已确认 → 开发中 → 测试中 → 已完成 → 已合并 → 已发布；任何时候可以“搁置”。</p>
 </section>
 
-<section>
+<section id="why5">
+  <h2>为什么是 5 个阶段</h2>
+  <p>理论标准拆得很细，实践中把总是一起做的合并。ISO/IEC/IEEE 12207 的 14 个技术过程像 OSI 七层，团队日常走的 5 步像 TCP/IP 五层。</p>
+  <div class="tbl"><table>
+    <tr><th>阶段</th><th>ISO/IEC/IEEE 12207 技术过程</th><th>团队里的叫法</th></tr>
+    <tr><td><b>需求</b></td><td>业务或使命分析、干系人需求定义、系统/软件需求定义</td><td>需求评审、PRD</td></tr>
+    <tr><td><b>设计</b></td><td>架构定义、设计定义、系统分析</td><td>技术评审、技术方案、拆任务</td></tr>
+    <tr><td><b>开发</b></td><td>实现、（部分）集成</td><td>编码、自测、代码评审</td></tr>
+    <tr><td><b>测试</b></td><td>集成、验证、确认</td><td>提测、QA、验收</td></tr>
+    <tr><td><b>发布</b></td><td>交付</td><td>上线</td></tr>
+    <tr><td class="muted">不在单个需求内</td><td class="muted">运行、维护、退役</td><td class="muted">运维</td></tr>
+  </table></div>
+</section>
+
+<section id="map">
   <h2>从现在的 9 个 skill 怎么变</h2>
   <div class="tbl"><table>
     <tr><th>现在</th><th>改后</th><th>说明</th></tr>
-    <tr><td><code>dev-workflow</code></td><td><code>dev-workflow</code></td><td>流程表、状态值、续做判断改成 5 阶段</td></tr>
-    <tr><td><code>dev-requirements</code></td><td><code>dev-requirements</code></td><td>基本不变，交接改为 dev-design</td></tr>
-    <tr><td><code>dev-design</code> + <code>dev-plan</code></td><td><code>dev-design</code></td><td>合并；任务模板挪到 dev-design 的参考文件；关口 B 归它</td></tr>
+    <tr><td><code>dev-workflow</code></td><td><code>dev-workflow</code></td><td>5 阶段、自主等级、机器验证规则、汇总格式</td></tr>
+    <tr><td><code>dev-requirements</code></td><td><code>dev-requirements</code></td><td>加“能用原型回答的先做原型”；写明完成条件；L3 批量确认</td></tr>
+    <tr><td><code>dev-design</code> + <code>dev-plan</code></td><td><code>dev-design</code></td><td>合并；关口 B 改为机器关口</td></tr>
     <tr><td><code>dev-implement</code></td><td><code>dev-build</code></td><td>改名；结尾调用 dev-review；定义“可提测”</td></tr>
-    <tr><td><code>dev-review</code></td><td><code>dev-review</code></td><td>保留为通用 skill；在流程里由 dev-build 调用，交回 dev-build</td></tr>
-    <tr><td><code>dev-test</code> + <code>dev-accept</code></td><td><code>dev-test</code></td><td>合并；验收核对和验收页挪进来；关口 C 归它</td></tr>
-    <tr><td><code>dev-cicd</code></td><td><code>dev-release</code></td><td>改名，内容不变</td></tr>
+    <tr><td><code>dev-review</code></td><td><code>dev-review</code></td><td>保留；问题必须有运行证据</td></tr>
+    <tr><td><code>dev-test</code> + <code>dev-accept</code></td><td><code>dev-test</code></td><td>合并；加项目验证 skill 生成和独立验证；关口 C 改为机器关口</td></tr>
+    <tr><td><code>dev-cicd</code></td><td><code>dev-release</code></td><td>改名；合并凭验证结论；上生产要你确认</td></tr>
   </table></div>
-  <p class="muted">已经验证过的东西不动：浏览器测试写法、关口回复规则、决定分类、安装脚本。改完后用独立子 agent 再通读一遍，并更新流程图页面。</p>
 </section>
 
-<section>
-  <h2>需要你拍板（4 个，都有默认）</h2>
-  <p>回 <code>all</code> 全部按默认；或 <code>d1 B</code> 这样改某一条。</p>
+<section id="ask">
+  <h2>需要你拍板（6 个，都有默认）</h2>
+  <p>回 <code>all</code> 全部按默认；或 <code>d5 B</code> 这样改某一条。</p>
   <div class="q"><h4>d1. 开发阶段的 skill 叫什么</h4>
-    <p class="rec">默认 A：dev-build（和“开发”对应，也和 build 阶段的常见叫法一致）</p>
-    <p>B：沿用 dev-implement　C：dev-develop</p></div>
-  <div class="q"><h4>d2. 合并掉的旧 skill（dev-plan、dev-implement、dev-accept、dev-cicd）怎么处理</h4>
-    <p class="rec">默认 A：直接删除。git 历史里还在，安装脚本会清理失效的链接</p>
-    <p>B：保留一个版本，只做“请改用 xxx”的转发，下个版本再删</p></div>
-  <div class="q"><h4>d3. 测试阶段的修复要不要再评审</h4>
-    <p class="rec">默认 A：改动超过 5 个文件或改了接口时才再调 dev-review</p>
-    <p>B：每次修复都评审（更稳，更慢）　C：不再评审（靠关口 C 你看）</p></div>
-  <div class="q"><h4>d4. 复盘要不要现在就做</h4>
-    <p class="rec">默认 A：先不做，等 devflow 真跑过几个需求、有了真实问题再加</p>
-    <p>B：现在加一个 dev-retro</p></div>
+    <p class="rec">默认 A：dev-build</p><p>B：沿用 dev-implement</p></div>
+  <div class="q"><h4>d2. 合并掉的旧 skill（dev-plan、dev-implement、dev-accept、dev-cicd）</h4>
+    <p class="rec">默认 A：直接删除，git 历史里还在</p><p>B：保留一个版本做转发</p></div>
+  <div class="q"><h4>d3. 验证通过后代码又改了</h4>
+    <p class="rec">默认 A：小改（修复、变基）派一个验证者复验；新功能或大改动重跑全套验证</p><p>B：任何改动都重跑全套</p></div>
+  <div class="q"><h4>d4. 复盘</h4>
+    <p class="rec">默认 A：先不做，跑过几个需求再加</p><p>B：现在就加 dev-retro</p></div>
+  <div class="q"><h4>d5. 默认自主等级 <span class="new">新</span></h4>
+    <p class="rec">默认 A：新项目从 L1 开始，满足 4 个条件后我提示你升到 L2</p><p>B：直接用 L2</p></div>
+  <div class="q"><h4>d6. 验证者用什么模型 <span class="new">新</span></h4>
+    <p>pstack 让验证者用和写代码不同的模型家族，盲区更少。你本机装了 Codex。</p>
+    <p class="rec">默认 A：先用同一个模型的全新子 agent，简单可靠</p><p>B：装了 Codex 时，再加一个 Codex 验证者做第二意见（会消耗 Codex 额度）</p></div>
 </section>
 
-<footer>devflow 阶段约定 · 草案 · dev-skills-build/docs/phases/index.html</footer>
+<footer>devflow 阶段约定 · 草案第 2 版 · dev-skills-build/docs/phases/index.html</footer>
 </div>
 </body>
 </html>
