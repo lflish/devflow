@@ -13,8 +13,13 @@ TARGETS=()
 BACKUP="$HOME/.cache/devflow-backup/$(date +%Y%m%d-%H%M%S)"
 
 # 本仓库里所有带 SKILL.md 的 dev-* 目录，每行一个（支持路径里有空格）
+# 只用 shell 通配符，macOS 自带的 bash 3.2 / BSD 工具也能用
 list_skills() {
-  find "$REPO" -mindepth 1 -maxdepth 1 -type d -name 'dev-*' -exec test -f '{}/SKILL.md' ';' -print | sort
+  local d
+  for d in "$REPO"/dev-*/; do
+    [ -f "${d}SKILL.md" ] && printf '%s\n' "${d%/}"
+  done
+  return 0
 }
 
 backup() { # $1=目标目录 $2=要移走的路径
