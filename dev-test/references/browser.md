@@ -78,7 +78,8 @@ DEVFLOW_EVIDENCE_DIR=<需求文件夹>/evidence \
 
 - 测试进程从头到尾共用一个会话。一次运行超过时长上限会被断开：把测试拆成几次运行，或在 playwright.config 里减少每次运行的测试数。
 - 每次运行后确认没有残留的会话（Steel：`GET https://api.steel.dev/v1/sessions?status=live`），残留会一直计费到超时。
-- 页面内容、截图、输入的数据都会经过云服务商。项目数据敏感时，在 `.devflow.yml` 写 `test.cloud_browser: forbidden`。
+- 页面内容、截图、输入的数据都会经过云服务商；**Steel 还会自动录下每个会话**（免费档保留 7 天，文档里没有关闭录像的选项）。项目数据敏感时，在 `.devflow.yml` 写 `test.cloud_browser: forbidden`。
+- 看会话：实时画面用会话的 debugUrl（加 `?interactive=false` 只读）；事后回放在 Steel 控制台，或用 `GET https://api.steel.dev/v1/sessions/<id>/hls` 取录像。debugUrl 不需要登录、拿到就能操作，只在用户要看时给，不写进报告和汇总。
 - Kernel 的接入代码还没有用真实账号测过；Steel 已实测（创建、连接、打开页面、截图、释放）。
 
 ## 探索式检查用的 Playwright MCP
