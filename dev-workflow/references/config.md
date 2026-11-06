@@ -29,16 +29,16 @@ commands:                       # 不写就从 package.json / Makefile 等推断
 environments:                   # 有哪些环境；地址一律写变量名
   local:
     start: npm run dev          # 远程浏览器要访问时，服务需监听 0.0.0.0
-    url_env: VIBEVIEW_LOCAL_URL         # 变量名带上项目名，避免一个全局变量覆盖所有项目
+    url_env: MYPROJ_LOCAL_URL           # 变量名带上项目名，避免一个全局变量覆盖所有项目
     default_url: http://localhost:3000   # 只允许 localhost 这类不含真实主机的默认值
     data: 可随意读写，可重置
   staging:
-    url_env: VIBEVIEW_STAGING_URL
+    url_env: MYPROJ_STAGING_URL
     deploy: "使用 $deploy-view 部署到 staging"
     data: 共享环境：只能用 e2e- 开头的测试数据，用完清理
     account_env: [STAGING_TEST_USER, STAGING_TEST_PASS]
   production:
-    url_env: VIBEVIEW_PROD_URL
+    url_env: MYPROJ_PROD_URL
     data: 只读：只做上线后检查，不提交表单、不写数据
 
 test:
@@ -75,7 +75,7 @@ verify:
   run_timeout: 1800                  # 一次验证限时（秒）
 
 projects:
-  /home/you/github/your-project:      # 键是仓库根目录的绝对路径
+  /home/you/github/myproj:           # 键是仓库根目录的绝对路径
     autonomy: L2                     # 可选：这台机器上覆盖项目默认等级
     environments:
       local:   { url: http://192.168.1.20:3000 }

@@ -33,13 +33,32 @@
 ## 安装
 
 ```bash
-./install.sh            # 软链接到 ~/.claude/skills 和 ~/.codex/skills
+git clone git@github.com:lflish/devflow.git ~/devflow
+cd ~/devflow
+./install.sh            # macOS / Linux：软链接到 ~/.claude/skills 和 ~/.codex/skills
 ./install.sh --status   # 查看安装情况
 ./install.sh --uninstall
 ```
 
-- 软链接安装：改了仓库里的文件立即生效（已打开的会话要重开才会重新读取 skill 列表）。
-- 目标位置已有同名的旧 dev-* 目录（比如之前手动复制进去的旧版）时，会先移到 `~/.cache/devflow-backup/<时间>/`，不会直接删除。
+Windows（PowerShell，用目录联接，不需要管理员权限；这个脚本还没在 Windows 上实测过）：
+
+```powershell
+git clone git@github.com:lflish/devflow.git $HOME\devflow
+cd $HOME\devflow
+powershell -ExecutionPolicy Bypass -File .\install.ps1          # status / uninstall 同理
+```
+
+- 链接安装：`git pull` 之后立即生效（已打开的会话要重开才会重新读取 skill 列表）。
+- 目标位置已有同名的旧 dev-* 目录时，会先移到 `~/.cache/devflow-backup/<时间>/`，不会直接删除。
+
+## 在本机快速试跑
+
+浏览器就在本机时，最简单：不设 `DEVFLOW_BROWSER_CDP`，测试会直接用本机的 Chrome（Playwright 会提示时运行 `npx playwright install chromium`），`browser.host` 也不用配。
+
+1. 装好 skills（上面）。
+2. 进一个你想试的项目（git 仓库），对 Claude Code 或 Codex 说：“用 devflow 做 <一个小需求>”。
+3. 第一次会生成 `.devflow.yml` 草稿，在关口 A 请你确认；新项目默认 L1，每个机器关口后都会请你看一眼。
+4. 想看页面：装好 vibeview 的 `dview` 并设置 `DVIEW_URL`、`DVIEW_TOKEN`；没有也能跑，页面只留在本地 `docs/changes/<需求>/pages/`。
 
 ## 每台机器配置一次
 
