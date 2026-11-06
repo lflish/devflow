@@ -1,7 +1,18 @@
-# ~/.config/devflow/config.yml —— 本机配置，不进任何仓库
+# ~/.config/devflow/config.yml —— 本机配置，不进任何仓库，可以写真实地址
 browser:
-  cdp_url_env: DEVFLOW_BROWSER_CDP   # 存 CDP 地址的环境变量名；值形如 http://10.0.0.5:9222
-  host: ""                           # 浏览器那台机器访问“这台机器”用的地址（局域网 / Tailscale IP）
-  # ssh_host: ""                     # 可选：访问不到时，用 SSH 反向隧道（在这台机器上执行）
+  cdp_url_env: DEVFLOW_BROWSER_CDP   # 测试浏览器 CDP 地址所在的环境变量
+  host: ""                           # 浏览器那台机器访问“这台机器”用的地址
+  # ssh_host: ""                     # 可选：访问不到时，在这台机器上建反向隧道
 preview:
-  vibeview: auto                      # auto：装了 dview 且配置了 DVIEW_URL 就用；off：不用
+  vibeview: auto
+verify:
+  models: [codex, claude, same]      # 验证者候选，按顺序探测：同级别的其他模型优先（可写 codex:<模型>、claude:<模型>），最后 same
+  probe_timeout: 60
+  run_timeout: 1800
+
+projects:
+  # /home/you/github/your-project:   # 键是仓库根目录的绝对路径
+  #   autonomy: L2
+  #   environments:
+  #     local:   { url: http://192.168.1.20:3000 }
+  #     staging: { url: https://staging.internal.example.com }

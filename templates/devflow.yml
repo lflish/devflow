@@ -1,12 +1,12 @@
 # .devflow.yml —— 放在项目根目录，提交进仓库。字段说明见 dev-workflow/references/config.md
-# 不写的项会从项目文件推断。不要写机器相关的值（IP、主机名、密钥），它们放在本机配置或环境变量里。
+# 地址只写变量名，不写真实地址；每个人的地址写在本机 ~/.config/devflow/config.yml 的 projects 下。
 
-# 每个阶段都会读：技术栈、约定、要注意的事
 context: |
   <语言和框架>；<数据库>；测试用 <测试框架>。
   <项目约定，比如：界面文案用中文；不引入新的前端框架>
 
 docs_dir: docs/changes
+autonomy: L1                   # L1 跟着看 / L2 常规 / L3 批量
 
 commands:
   install: npm ci
@@ -14,19 +14,35 @@ commands:
   test: npm test
   build: npm run build
   e2e: npx playwright test
-  dev: npm run dev              # 远程浏览器要访问时，服务需监听 0.0.0.0
-  dev_url: http://localhost:3000
+
+environments:
+  local:
+    start: npm run dev         # 远程浏览器要访问时，服务需监听 0.0.0.0
+    url_env: MYPROJ_LOCAL_URL     # 变量名带上项目名
+    default_url: http://localhost:3000
+    data: 可随意读写，可重置
+  # staging:
+  #   url_env: MYPROJ_STAGING_URL
+  #   deploy: "<把当前提交部署到 staging 的命令>"   # 独立验证在 staging 上做时必须有
+  #   data: 共享环境：只能用 e2e- 开头的测试数据，用完清理
+  #   account_env: [STAGING_TEST_USER, STAGING_TEST_PASS]
+  # production:
+  #   url_env: MYPROJ_PROD_URL
+  #   data: 只读：只做上线后检查
+
+test:
+  e2e_env: local
+  verify_env: local            # 有 staging 时改成 staging
 
 rules:
   requirements: []
   design: []
-  implement: []
+  build: []
   test: []
 
 release:
   bump: patch
   tag_prefix: v
   publish: ""        # 例：使用 $release 发布 {version}
-  staging: ""
   production: ""     # 例：使用 $deploy-view 部署 {tag}
   post_check: ""     # 例：打开线上首页，确认版本号是 {version}

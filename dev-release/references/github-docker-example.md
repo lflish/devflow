@@ -1,9 +1,10 @@
 # 示例：GitHub Actions + 单台 Linux/Docker 部署
 
-> **这是示意，不能直接用。** 照着改之前要补齐：CI 里构建并推送以提交 sha 为标签的镜像（部署时拉的就是它）；
-> CI 里加上浏览器测试和失败截图上传（见 dev-cicd 第 2 步）；`APP_NAME`、`DOCKER_REGISTRY` 等变量在 compose 和脚本里要一致地导出。
+> **这是示意，不能直接用。** 特别注意：下面的 CD 工作流在 main 合并后会自动部署生产，用在 devflow 里必须去掉生产那一段（或改成手动触发），否则 L2 下的自动合并会绕过“上生产确认”。
+> 照着改之前要补齐：CI 里构建并推送以提交 sha 为标签的镜像（部署时拉的就是它）；
+> CI 里加上浏览器测试和失败截图上传（见 dev-release 第 2 步）；`APP_NAME`、`DOCKER_REGISTRY` 等变量在 compose 和脚本里要一致地导出。
 
-原版 dev-cicd 的完整示例，项目没有自己的 CI 和部署方式时参考。命令要换成项目实际的（见 .devflow.yml 的 commands）。
+项目没有自己的 CI 和部署方式时参考。命令要换成项目实际的（见 .devflow.yml 的 commands）。
 
 ## 生成 GitHub Actions 工作流
 
@@ -133,7 +134,7 @@ if [[ "$ENV" != "staging" && "$ENV" != "production" ]]; then
   exit 1
 fi
 
-# 生产部署的确认在关口 D 已经做过；脚本里不做交互确认（CI/ssh 里没有终端，read 会读到空值）。
+# 生产部署的确认在发布阶段的“上生产确认”已经做过；脚本里不做交互确认（CI/ssh 里没有终端，read 会读到空值）。
 # 用环境变量显式确认，缺少时失败退出（非 0），而不是“成功地什么都没做”。
 if [[ "$ENV" == "production" && "${CONFIRM:-}" != "yes" ]]; then
   echo "错误: 部署生产环境需要设置 CONFIRM=yes" >&2
@@ -212,7 +213,7 @@ echo ">>> 部署完成: ${APP_NAME}:${TAG} → ${ENV}"
 | **部署前备份** | 记录当前运行版本标签，可选导出数据库快照 |
 | **部署后健康检查** | 循环轮询 /health 端点，超时判定失败 |
 | **检查失败自动回滚** | 健康检查超时后自动用上一版本重新启动 |
-| **生产需人工确认** | `production` 环境部署前需输入 `yes` 确认 |
+| **生产需显式确认** | `production` 部署需设置环境变量 `CONFIRM=yes`，否则脚本失败退出 |
 | **发布记录** | 每次部署追加写入 releases.log |
 
 ## 生成部署用 Docker Compose 模板

@@ -6,7 +6,7 @@
 #   ./install.sh --status     查看安装情况
 set -euo pipefail
 
-REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 TARGETS=()
 [ -d "$HOME/.claude" ] && TARGETS+=("$HOME/.claude/skills")
 [ -d "${CODEX_HOME:-$HOME/.codex}" ] && TARGETS+=("${CODEX_HOME:-$HOME/.codex}/skills")
@@ -51,7 +51,7 @@ case "${1:-install}" in
       done
       echo "已安装到 $t"
     done
-    [ -d "$BACKUP" ] && echo "旧版本备份在 $BACKUP（需要时可手动移回）"
+    if [ -d "$BACKUP" ]; then echo "旧版本备份在 $BACKUP（需要时可手动移回）"; fi
     ;;
   --uninstall)
     for t in "${TARGETS[@]}"; do
@@ -59,6 +59,11 @@ case "${1:-install}" in
         dest="$t/$(basename "$s")"
         if [ -L "$dest" ] && [ "$(readlink "$dest")" = "$s" ]; then rm "$dest"; echo "已删除 $dest"; fi
       done < <(list_skills)
+      for l in "$t"/dev-*; do   # 指向本仓库、但已失效的旧链接也删掉
+        if [ -L "$l" ] && [ ! -e "$l" ]; then
+          case "$(readlink "$l")" in "$REPO"/*) rm "$l"; echo "已删除失效链接 $l" ;; esac
+        fi
+      done
     done
     echo "备份目录 $HOME/.cache/devflow-backup/ 里的旧版本不会自动恢复。"
     ;;
@@ -72,6 +77,9 @@ case "${1:-install}" in
         elif [ -e "$dest" ] || [ -L "$dest" ]; then echo "  ! $name（存在，但不是指向本仓库的软链接）"
         else echo "  ✗ $name（未安装）"; fi
       done < <(list_skills)
+      for l in "$t"/dev-*; do
+        if [ -L "$l" ] && [ ! -e "$l" ]; then echo "  ! $(basename "$l")（失效链接，运行 ./install.sh 会清理）"; fi
+      done
     done
     ;;
   *) echo "未知参数：$1" >&2; exit 2 ;;

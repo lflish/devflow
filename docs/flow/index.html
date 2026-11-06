@@ -43,7 +43,7 @@ nav a{font-size:13px;color:var(--accent);text-decoration:none;background:var(--s
 .lane-label{display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;writing-mode:vertical-rl;letter-spacing:2px;padding:8px 0}
 .lane-label.h{background:var(--human-soft);color:var(--human)}
 .lane-label.a{background:var(--accent-soft);color:var(--accent)}
-.lane{display:grid;grid-template-columns:repeat(8,minmax(104px,1fr));gap:8px;padding:12px}
+.lane{display:grid;grid-template-columns:repeat(5,minmax(150px,1fr));gap:8px;padding:12px}
 .lane.h{background:#fffdf7;border-bottom:1px dashed var(--line)}
 .lane.a{background:#fbfdff}
 .gate{border:2px solid var(--human);background:var(--surface);border-radius:10px;padding:8px;font-size:12.5px;text-align:center;cursor:pointer}
@@ -120,6 +120,12 @@ th{background:var(--soft);font-weight:600;white-space:nowrap}
 svg text{font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
 pre{background:#0f172a;color:#e2e8f0;padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:12.5px;line-height:1.55;margin:8px 0}
 footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
+.gate.mach{border-color:var(--ok)}
+.gate.mach b{color:var(--ok)}
+.tl .ev.mach::before{background:var(--ok)}
+.tl .ev.mach .who{color:var(--ok)}
+.tl .ev.you::before{background:var(--human)}
+.lane-label.h{font-size:12px}
 </style>
 </head>
 <body>
@@ -127,23 +133,23 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 
 <header>
   <h1>devflow 开发流程</h1>
-  <p class="muted">9 个 dev-* skills：每个阶段调用哪个 skill、它做了什么、你在哪里参与。点击任意阶段查看详情。版本 0.2.0 · 内容取自 <code>~/dev-skills-build</code></p>
+  <p class="muted">7 个 dev-* skills：5 个阶段各用哪个 skill、它做了什么、你在哪里参与、机器在哪里替你验证。点击任意阶段查看详情。版本 0.3.0 · 内容取自 <code>~/dev-skills-build</code></p>
   <div class="legend">
-    <span><span class="chip c-human">你</span>需要你看或回复</span>
-    <span><span class="chip c-auto">AI</span>自动完成</span>
-    <span><span class="chip c-agent">子 agent</span>派独立的子 agent</span>
-    <span><span class="chip c-browser">浏览器</span>用测试浏览器</span>
-    <span><span class="chip c-page">vibeview</span>生成页面上传</span>
+    <span><span class="chip c-human">你</span>只有人能做：定方向、上生产</span>
+    <span><span class="chip c-ok">机器关口</span>独立验证通过就放行</span>
+    <span><span class="chip c-agent">验证者</span>没写过代码的模型</span>
+    <span><span class="chip c-browser">浏览器</span>测试浏览器</span>
+    <span><span class="chip c-page">vibeview</span>页面</span>
   </div>
   <nav>
-    <a href="#overview">流程总览</a><a href="#detail">阶段详情</a><a href="#timeline">一个需求走一遍</a>
-    <a href="#rules">共用规则</a><a href="#state">状态和续做</a><a href="#files">文件和引用</a><a href="#borrow">借鉴来源</a>
+    <a href="#overview">流程总览</a><a href="#detail">阶段详情</a><a href="#levels">自主等级</a><a href="#timeline">一个需求走一遍</a>
+    <a href="#machine">机器验证</a><a href="#rules">共用规则</a><a href="#state">状态和续做</a><a href="#files">文件和配置</a><a href="#borrow">借鉴来源</a>
   </nav>
 </header>
 
 <section id="overview">
   <h2>流程总览</h2>
-  <p class="muted">上面一行是你，下面一行是 AI。关口之间 AI 连续推进、不来问你。</p>
+  <p class="muted">上面一行是你，下面一行是 AI。人只做两类事：<b>定方向</b>（关口 A）和<b>放行不可逆的动作</b>（上生产）。其余关口由机器验证放行，你看事后汇总。</p>
   <div class="lanes" id="lanes"></div>
 </section>
 
@@ -152,101 +158,116 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
   <div class="detail" id="detailBox"></div>
 </section>
 
+<section id="levels">
+  <h2>自主等级：你想参与多少</h2>
+  <div class="tbl"><table>
+    <tr><th>等级</th><th>适用</th><th>你参与的点</th></tr>
+    <tr><td><b>L1 跟着看</b>（新项目默认）</td><td>刚开始用、新项目、高风险改动</td><td>关口 A；机器关口 B、C 通过后看一眼；合并前确认；上生产前确认</td></tr>
+    <tr><td><b>L2 常规</b></td><td>信任建立后的日常需求</td><td>关口 A；机器关口自动放行，你看汇总；合并凭验证结论；上生产前确认</td></tr>
+    <tr><td><b>L3 批量</b></td><td>一批互相独立的小需求</td><td>一批需求一次确认关口 A；自动跑到合并；整批一份上生产清单</td></tr>
+  </table></div>
+  <p class="muted" style="margin-top:8px">所有等级都一样：难以回头的决定、改你定下的需求、放松检查 → 只暂停那一项；上生产、删数据、强推、对外发消息 → 永远要你确认。L1 升 L2 要满足 4 个条件：跑过 2–3 个需求、项目验证 skill 跑通、机器验证拦下过真问题、反复的错误已变成自动检查。</p>
+</section>
+
 <section id="timeline">
-  <h2>一个需求走一遍：你在哪些时候参与</h2>
-  <p class="muted">以“给预览页加评论和确认签字”（标准规模、有界面）为例。橙色是你，蓝色是 AI。</p>
+  <h2>一个需求走一遍（L2）</h2>
+  <p class="muted">以“给预览页加评论”为例，标准规模，等级 L2。橙色是你，蓝色是 AI，绿色是机器关口。</p>
   <div class="count">
-    <div><b>5 次</b><span class="muted">需要你看或回复</span></div>
-    <div><b>4 次</b><span class="muted">可以只回 <code>all</code></span></div>
-    <div><b>3 个</b><span class="muted">vibeview 页面</span></div>
-    <div><b>0 次</b><span class="muted">关口之间被打断</span></div>
+    <div><b>2 次</b><span class="muted">需要你回复</span></div>
+    <div><b>3 个</b><span class="muted">机器关口替你验证</span></div>
+    <div><b>1 个</b><span class="muted">持续更新的汇总页</span></div>
+    <div><b>0 次</b><span class="muted">开发中被打断</span></div>
   </div>
   <div class="tl" id="tl"></div>
 </section>
 
+<section id="machine">
+  <h2>机器验证：怎样才算可信</h2>
+  <div class="grid3">
+    <div class="card"><h4>六条规则</h4><ol>
+      <li>验证者没写过这段代码</li>
+      <li>在真实环境里跑：测试 + 测试浏览器走每个场景</li>
+      <li>每个问题要有运行证据，跑不出来不算</li>
+      <li>结论绑定代码指纹，代码变了就复验（只改文档不复验）</li>
+      <li>只拦用户会遇到的问题</li>
+      <li>放松检查一律交给你</li></ol></div>
+    <div class="card"><h4>验证者用谁</h4><ol>
+      <li>按本机配置 <code>verify.models</code> 顺序探测（默认 codex → claude → same），60 秒不通就换下一个</li>
+      <li>跳过当前写代码的那个模型</li>
+      <li>都不行：同一模型的全新子 agent</li>
+      <li>连子 agent 都没有：同一上下文验证，<b>不能自动放行</b></li></ol>
+      <p class="muted" style="font-size:12.5px">结论里写明用了谁、为什么。</p></div>
+    <div class="card"><h4>项目验证 skill</h4>
+      <p>每个项目第一次测试时生成 <code>verify-&lt;项目名&gt;</code>：怎么启动、怎么体检、怎么像用户一样操作、证据存哪、怎么清理，加上主要功能清单。必须实际跑通才算交付；只认环境名，不写地址。</p></div>
+  </div>
+</section>
+
 <section id="rules">
   <h2>共用规则（dev-workflow/references）</h2>
-  <p class="muted">每个阶段开头都先读 <code>../dev-workflow/SKILL.md</code> 和 <code>decisions.md</code>，所以下面这些规则在所有阶段都生效。</p>
-  <h3>遇到要做决定的事：先分类</h3>
   <div class="grid3">
-    <div class="card"><h4><span class="chip c-auto">机械型</span></h4><p>只有一个合理答案：文件放哪、命名、用项目已有的库。</p><p><b>直接定</b>，重要的记一行。</p></div>
-    <div class="card"><h4><span class="chip c-agent">口味型 d1, d2…</span></h4><p>两个方案都合理；范围在边界上；评审意见有道理。</p><p><b>先按推荐定、继续做</b>，攒到下一个关口给你看，你可以改。</p></div>
-    <div class="card"><h4><span class="chip c-human">挑战型 c1, c2…</span></h4><p>要改你定下的需求、范围、方案，或想放松某个检查。</p><p><b>绝不自己改</b>，按原样继续，到关口单独列出：原来怎样、建议怎样、理由、改错的代价。</p></div>
+    <div class="card"><h4>先问：能跑出答案吗</h4><p>“哪个方案好”“行不行”能用运行结果回答的，做一次性原型或探针跑一下，<b>不问人</b>。</p></div>
+    <div class="card"><h4>决定分三类</h4><ul>
+      <li><span class="chip c-auto">机械型</span> 直接定</li>
+      <li><span class="chip c-agent">口味型 d</span> 按推荐做，进汇总，你可以改</li>
+      <li><span class="chip c-human">只有人能做 c</span> 只暂停这一项，其余照常</li></ul></div>
+    <div class="card"><h4>只有人能做的事</h4><ul>
+      <li>定方向、改你定下的需求</li><li>实验定不了的产品偏好</li>
+      <li>迁移已有数据、破坏对外兼容、新基础设施或付费依赖</li>
+      <li>放松检查</li><li>上生产、删数据、强推、对外发消息、安全敏感</li></ul></div>
   </div>
   <div class="grid3" style="margin-top:12px">
     <div class="card"><h4>决策原则（按顺序）</h4><ol>
-      <li>以 spec 为准</li><li>复用已有</li><li>直白优先</li>
-      <li>影响范围内补全（只限本来就要改的文件）</li><li>不扩大范围（记进“后续”）</li><li>倾向行动</li></ol></div>
-    <div class="card"><h4>只有这 4 种情况中途停</h4><ol>
-      <li>不可逆或破坏性操作</li><li>安全敏感操作</li><li>对外副作用（推送、发布、部署）→ 一般攒到关口 D</li>
-      <li>spec 根本走不通 → 生成 vibeview 对比页让你选</li></ol>
-      <p class="muted" style="font-size:12.5px">不算停止情况：上传 vibeview、连测试浏览器、本地提交和建分支、装测试依赖、启停本地服务。</p></div>
-    <div class="card"><h4>关口回复怎么写</h4><ul>
-      <li><code>all</code> 全部按默认</li>
-      <li><code>d2 B</code>　<code>c1 同意</code></li>
-      <li><code>Q3 B</code>　<code>H2 改为 …</code>　<code>E1 加入</code>　<code>P1 不同意：…</code></li>
-      <li><code>问 d3</code>　<code>重做 &lt;原因&gt;</code></li>
-      <li>同一个关口最多来回 3 轮</li></ul></div>
+      <li>以 spec 为准</li><li>复用已有</li><li>直白优先</li><li>本来要改的文件里补全缺口</li><li>不扩大范围</li><li>倾向行动</li></ol></div>
+    <div class="card"><h4>不需要确认，直接做</h4><ul>
+      <li>上传 vibeview、连测试浏览器</li><li>本地分支、提交、worktree；推送 change/*、开 PR</li>
+      <li>装测试依赖、启停本地服务</li><li>按配置部署到非生产环境</li><li>合并后只改需求文档的状态提交</li></ul></div>
+    <div class="card"><h4>回复怎么写</h4><ul>
+      <li><code>all</code> 全部按默认</li><li><code>d2 B</code>　<code>c1 同意</code>　<code>Q3 B</code>　<code>H2 改为 …</code></li>
+      <li><code>按 L2 跑</code>　<code>问 d3</code>　<code>重做 &lt;原因&gt;</code></li>
+      <li>“继续”<b>不算</b>通过；上生产只认 <code>all</code> 或动作编号</li></ul></div>
   </div>
-  <h3>每个决定记一行（decisions.md）</h3>
-  <div class="tbl"><table>
-    <tr><th>#</th><th>阶段</th><th>决定</th><th>类型</th><th>依据</th><th>理由</th><th>放弃的选项</th><th>定错的代价</th><th>关口处理</th></tr>
-    <tr><td>3</td><td>设计</td><td>评论存 SQLite 新表</td><td>机械</td><td>原则 2</td><td>项目已用 SQLite</td><td>JSON 文件</td><td>低</td><td>—</td></tr>
-    <tr><td>d1</td><td>设计</td><td>评论按页面版本隔离</td><td>口味</td><td>原则 1</td><td>spec 要求对应版本</td><td>跨版本共享</td><td>中</td><td>关口 B 采纳</td></tr>
-    <tr><td>c1</td><td>实现</td><td>建议去掉匿名评论</td><td>挑战</td><td>—</td><td>和访问码权限冲突</td><td>保留</td><td>高</td><td>待关口 C</td></tr>
-  </table></div>
 </section>
 
 <section id="state">
-  <h2>状态和续做：换了会话也能接着做</h2>
-  <p>每个需求的 <code>spec.md</code> 标题下有一行状态，AI 每次开始都先看它：</p>
-  <pre>状态：实现中　阶段：dev-test　待关口：—　规模：标准　创建：2026-11-02　更新：2026-11-03</pre>
+  <h2>状态和续做</h2>
+  <pre>状态：开发中　阶段：dev-build　待关口：—　等级：L2　规模：标准　创建：2026-11-06　更新：2026-11-06</pre>
   <div class="grid3">
-    <div class="card"><h4>状态（给你看）</h4><p>草案 → 已确认 → 实现中 → 待验收 → 已完成 → 已交付；也可以是“搁置”。</p></div>
+    <div class="card"><h4>状态（给你看）</h4><p>草案 → 已确认 → 开发中 → 测试中 → 已验证 → 已合并 → 已发布；任何时候可以“搁置”。</p></div>
     <div class="card"><h4>阶段（给 AI 续做）</h4><p>正在做哪个 skill。每个阶段开始时改成自己，交接时改成下一个。</p></div>
-    <div class="card"><h4>待关口（在等你）</h4><p>评审 / A / AB / B / C / D / 停-n。有值时，你说“继续”，AI 会把那个关口的简报重发给你，而不是重做。</p></div>
+    <div class="card"><h4>待关口（在等你）</h4><p>评审 / A / B / C / 合并 / 上生产 / c&lt;n&gt; / 停-n。你说“继续”时，AI 把等待中的简报重发给你，不会当成通过。</p></div>
   </div>
   <h3>状态怎么变，哪里会回头</h3>
-  <div class="svgbox"><svg id="sm" viewBox="0 0 1090 250" width="100%" style="min-width:760px" role="img" aria-label="状态流转图"></svg></div>
-  <h3>“继续”时 AI 怎么判断从哪里接着做</h3>
-  <div class="tbl"><table>
-    <tr><th>顺序</th><th>看到</th><th>做什么</th></tr>
-    <tr><td>1</td><td>“待关口”有值</td><td>你的消息是回复 → 按关口规则处理；不是 → 重发那个关口的简报</td></tr>
-    <tr><td>2</td><td>“阶段”有值</td><td>读那个阶段的 SKILL.md，从它写的“接着做”处继续</td></tr>
-    <tr><td>3</td><td>没有需求文件夹</td><td>当作新需求，进入 dev-requirements</td></tr>
-  </table></div>
+  <div class="svgbox"><svg id="sm" viewBox="0 0 1230 250" width="100%" style="min-width:800px" role="img" aria-label="状态流转图"></svg></div>
 </section>
 
 <section id="files">
-  <h2>文件和引用关系</h2>
+  <h2>文件和配置</h2>
   <div class="grid3">
     <div class="card"><h4>每个需求一个文件夹</h4>
-<pre>docs/changes/
-├── README.md              索引
-└── 2026-11-02-review-comments/
-    ├── spec.md            需求 + 状态行
-    ├── design.md          设计（小规模没有）
-    ├── tasks.md           任务 + 进度 + 后续
-    ├── decisions.md       裁决记录
-    ├── test-report.md     测试结果
-    ├── review.md          评审结果
-    ├── evidence/          浏览器截图
-    └── pages/             vibeview 页面源文件
-        ├── prototype/  plan/  accept/</pre></div>
-    <div class="card"><h4>两层配置</h4>
+<pre>docs/changes/2026-11-06-comments/
+├── spec.md          需求 + 状态行
+├── design.md        设计 + 方案验证
+├── tasks.md         测试计划 + 任务 + 进度
+├── decisions.md     裁决记录（只追加）
+├── review.md        代码评审
+├── test-report.md   测试结果
+├── verdict.md       独立验证结论
+├── evidence/        截图
+└── pages/           prototype/ summary/</pre></div>
+    <div class="card"><h4>配置放在哪</h4>
 <pre># 项目 .devflow.yml（进仓库）
-context: 技术栈、约定
-commands: test / e2e / dev / dev_url
-rules: 各阶段额外规则
-release: bump / publish / production
+autonomy / commands / rules / release
+environments: 只写环境名、变量名、数据规则
+test: e2e_env / verify_env
 
 # 本机 ~/.config/devflow/config.yml
-browser.cdp_url_env: DEVFLOW_BROWSER_CDP
-browser.host: 浏览器访问这台机器的地址
-preview.vibeview: auto</pre>
-      <p class="muted" style="font-size:12.5px">项目文件里不写 IP、主机名、密钥。</p></div>
+browser / preview / verify.models
+projects:
+  &lt;仓库根目录&gt;:
+    environments: 你自己的真实地址</pre>
+      <p class="muted" style="font-size:12.5px">仓库里不写真实地址；密钥只放环境变量。</p></div>
   </div>
-  <h3>每个 skill 读哪些文件</h3>
+  <h3>每个 skill 读哪些共用规则</h3>
   <div class="tbl" id="matrix"></div>
 </section>
 
@@ -254,222 +275,131 @@ preview.vibeview: auto</pre>
   <h2>借鉴来源</h2>
   <div class="tbl"><table>
     <tr><th>来自</th><th>用在哪</th><th>做法</th></tr>
-    <tr><td><b>gstack</b></td><td>需求评审</td><td>前提挑战、把模糊说法改写成“我理解你要的是…”、最小可行方案、四种范围模式、理想状态对照</td></tr>
-    <tr><td><b>gstack</b></td><td>全流程</td><td>决定三分类、决策原则、一页简报（回 <code>all</code> 即通过）、真实浏览器 QA、修复前先写回归测试、评审时查测试有没有被放松</td></tr>
-    <tr><td><b>superpowers</b></td><td>需求 / 计划 / 实现</td><td>先查后问、新人通读检查、执行中“裁决而不是停等”、计划写到执行者无需再做决定</td></tr>
-    <tr><td><b>Spec Kit</b></td><td>需求</td><td>缺口清单、最多 5 题每题带推荐、能猜的写进假设</td></tr>
-    <tr><td><b>OpenSpec</b></td><td>需求 / 验收 / 配置</td><td>需求写成“必须…”加场景、spec 只写行为、完整性正确性一致性三项核对、项目配置注入</td></tr>
+    <tr><td><b>pstack</b></td><td>全流程</td><td>机器验证代替人确认、验证者不写代码、问题要有运行证据、结论绑定代码、项目验证 skill、能跑出答案的不问人、汇总写法、信任先赢得再放手</td></tr>
+    <tr><td><b>gstack</b></td><td>需求 / 全流程</td><td>前提挑战、最小可行方案、范围模式、决定分类、真实浏览器 QA、修复前先写回归测试、查测试是否被放松</td></tr>
+    <tr><td><b>superpowers</b></td><td>需求 / 开发</td><td>先查后问、新人通读、执行中裁决不停等、计划写到无需再决定</td></tr>
+    <tr><td><b>Spec Kit</b></td><td>需求</td><td>缺口清单、最多 5 题每题带推荐、假设</td></tr>
+    <tr><td><b>OpenSpec</b></td><td>需求 / 验收 / 配置</td><td>需求加场景、只写行为、验收核对、项目配置</td></tr>
   </table></div>
 </section>
 
-<footer>devflow 0.2.0 · 页面由 dev-skills-build/docs/flow/index.html 生成</footer>
+<footer>devflow 0.3.0 · 页面源文件 dev-skills-build/docs/flow/index.html</footer>
 </div>
 
 <script>
-const T = {h:'<span class="chip c-human">你</span>', a:'<span class="chip c-agent">子 agent</span>', b:'<span class="chip c-browser">浏览器</span>', p:'<span class="chip c-page">vibeview</span>'};
-const STAGES = [
- {id:'dev-requirements', n:1, t:'需求', sum:'一次问清、写死要做的东西',
-  icons:'hap', trig:'提新功能、新想法、较大的改动、写 PRD/spec 时。纯 bug 修复先判断规模，微小的直接修。',
-  reads:'代码、已有文档、git log、.devflow.yml',
-  out:'spec.md（带验收场景）、decisions.md、效果页', next:'标准规模 → 关口 A → dev-design；小规模 → dev-plan（合并关口 AB）',
-  steps:[
-   ['定规模，建文件夹','微小的直接改；在默认分支上就建本地分支 change/&lt;短名&gt;；建需求文件夹、spec 骨架、索引。',''],
-   ['先查','读相关代码和文档，直到能说清现在怎么工作、要改哪里、能复用什么。',''],
-   ['需求评审（借鉴 gstack）','判断需求类型；前提挑战（问题找对了吗？什么都不做会怎样？）；模糊说法直接改写；产品层面 2–3 个方案（必须有“最小可行”）；推荐范围模式并列出扩展候选；理想状态对照。再按缺口清单扫一遍，能定的写成假设 H，必须问的列成 Q（最多 5 题）。',''],
-   ['发一条评审消息','理解 + 前提 P + 做法 + 范围 E + 问题 Q，全部带推荐，一条消息发出。你回 all 即全部按推荐。没有歧义时可以跳过这一步。','h'],
-   ['写 spec','需求写成“系统必须…”，每条配 假如/当/那么 场景，覆盖出错、空、无权限、重复操作；只写行为不写实现。',''],
-   ['新人通读检查','派一个没看过对话的子 agent 读 spec，找出“必须靠猜、猜错代价大”的地方。','a'],
-   ['效果页','有界面或流程时生成可点击的效果页（正常/空/出错/无权限状态），上传 vibeview。','p'],
-   ['关口 A','简报：要做 / 不做 / 推迟、关键场景、假设 H、剩余问题 Q、效果页链接。','h']],
-  refs:[['product-review.md','需求评审方法（gstack）'],['gap-checklist.md','缺口清单'],['spec-template.md','spec 模板'],['builder-check-prompt.md','新人通读提示词']],
-  dont:['不把代码能查到的拿来问人','不一题一题地问，不问实现方法','不只做记录员：说法有问题要直说','不悄悄扩大范围','关口 A 之前不写产品代码']},
- {id:'dev-design', n:2, t:'设计', sum:'选定做法，定下接口和数据',
-  icons:'a', trig:'关口 A 通过后自动进入；或“设计一下”。小规模跳过。',
-  reads:'spec.md、decisions.md、相关代码',
-  out:'design.md', next:'直接进入 dev-plan（不单独过关口）',
-  steps:[
-   ['读','spec 全文、已有决定、要改的模块和项目惯例。',''],
-   ['选方案','想 2–3 个真正不同的做法，按原则选；难分高下的记为口味型 d；要改需求才能做好的记为挑战型 c。',''],
-   ['写 design.md','方案对比、结构、选型、接口（到参数和错误）、数据、状态、安全、需求覆盖表。',''],
-   ['前置验证','把设计依赖的前提实际跑一遍（依赖、接口、版本），失败就调整设计。',''],
-   ['工程评审','派全新子 agent 独立评审：覆盖、现实、结构、数据、失败、安全、可测、范围。错误直接改，取舍记 d，需求问题记 c。','a'],
-   ['交给 dev-plan','提交，阶段改为 dev-plan。','']],
-  refs:[['design-template.md','设计文档模板'],['eng-review-prompt.md','工程评审提示词']],
-  dont:['不停下来问“用 A 还是 B”','不为“以后可能用到”加抽象','不跳过前置验证']},
- {id:'dev-plan', n:3, t:'计划', sum:'拆到实现时不用再做决定',
-  icons:'hp', trig:'设计完成后自动进入；或“拆任务”“plan tasks”。',
-  reads:'spec.md、design.md、decisions.md、代码',
-  out:'tasks.md（测试计划 + 任务）、方案简报页', next:'关口 B（小规模为 AB）→ dev-implement',
-  steps:[
-   ['读','小规模在这里写 5–10 行技术方案。',''],
-   ['测试计划','每个场景分到 单元 / 集成 / 浏览器；浏览器测试统一由 dev-test 写。再列 3–5 个“spec 没写但容易出问题”的情况。',''],
-   ['拆任务','每个任务写清文件、接口（用什么、提供什么）、对应场景、测试名和断言、完成定义。不写“处理边界情况”这种空话，也不把代码写完。',''],
-   ['自查','场景全覆盖、前后命名一致、无循环依赖、无 TBD、计划不比代码长。',''],
-   ['关口 B / AB','生成方案简报页，给出一页简报：方案、c 和 d（带默认）、任务数、风险。','hp']],
-  refs:[['tasks-template.md','任务清单模板（含状态：待办/进行中/完成/阻塞）']],
-  dont:['不写不做决定的句子','不把计划写成代码']},
- {id:'dev-implement', n:4, t:'实现', sum:'连续做完，中途不打扰',
-  icons:'', trig:'关口 B 通过后自动进入；或“开始实现”“implement”。',
-  reads:'tasks.md、design.md、decisions.md',
-  out:'代码、提交、tasks.md 进度', next:'全部完成（或阻塞）→ dev-test',
-  steps:[
-   ['每个任务：先写测试','按任务里的测试名和断言写，运行确认它因为功能没实现而失败。',''],
-   ['实现并验证','写让测试通过的最少代码；跑本任务和相关测试；按完成定义验证。',''],
-   ['提交并记录','只提交本任务改动；任务改为完成，进度表加一行。然后马上做下一个。',''],
-   ['遇到问题：裁决不停等','接口不合理 → 改并记录；spec 歧义 → 记 d；觉得需求该改 → 按原样做、记 c；范围外改进 → 记进“后续”；试 3 次不行 → 标“阻塞”，先做别的。',''],
-   ['全部完成后','跑全部测试和 lint，交给 dev-test。','']],
-  refs:[],
-  dont:['一次只做一个任务','不重构、不改范围外文件','不放松测试来过关','不推送到远程（攒到关口 D）']},
- {id:'dev-test', n:5, t:'测试', sum:'真实浏览器里验证每个场景',
-  icons:'b', trig:'实现完成后自动进入；或“跑测试”“写测试”“e2e”。',
-  reads:'spec.md、tasks.md 测试计划、本机浏览器配置',
-  out:'测试代码、test-report.md、evidence/ 截图', next:'dev-review',
-  steps:[
-   ['对照表','场景 → 层级 → 测试 → 状态，每个场景至少一个测试。',''],
-   ['单元和集成','补齐缺的：具体值、边界、异常、互相独立。',''],
-   ['连浏览器','检查 CDP 能连上；算出被测地址（浏览器访问这台机器用的地址）；确认能打开。连不上就退回本机无头浏览器，并写明。','b'],
-   ['脚本化 E2E','每个浏览器场景一个 Playwright 测试，提交进仓库；关键场景截图存到 evidence/。','b'],
-   ['探索式检查','像人一样逐页点：表单、导航、空/出错状态、控制台、手机宽度、权限。问题编号 X，分严重/高/中/低。','b'],
-   ['修复','先写能复现的回归测试 → 最小修复 → 复测 → 提交。撤回 2 次就停手，剩下的交给关口 C。',''],
-   ['报告','全量运行附输出，写 test-report.md；浏览器测试没做要醒目写明。','']],
-  refs:[['browser.md','怎么连远程浏览器、被测地址、退路、安全'],['e2e-example.md','Playwright 配置和写法（已实测）'],['explore-checklist.md','探索式检查清单和严重程度'],['report-template.md','测试报告模板']],
-  dont:['不改测试迁就错误的实现','不用操作你个人浏览器的工具','不悄悄略过浏览器测试']},
- {id:'dev-review', n:6, t:'评审', sum:'一双新眼睛找问题',
-  icons:'a', trig:'测试完成后自动进入；也可单独用：“评审一下这段代码”。',
-  reads:'spec、design、test-report、git diff',
-  out:'review.md、修复提交', next:'dev-accept',
-  steps:[
-   ['确定范围','当前分支和默认分支的分叉点之后的所有改动。',''],
-   ['独立评审','派全新子 agent，两轮：严重（需求一致性、数据安全、并发、新取值是否处理全、不可信输入、安全、检查是否被放松），再一般。','a'],
-   ['处理每个问题','明确错误 → 先写回归测试再修；取舍 → 记 d；需求问题 → 记 c；检查被放松 → 一律记 c 交给你。',''],
-   ['review.md','已修复 / 交关口决定 / 不采纳 + 测试复跑结果。','']],
-  refs:[['checklist.md','两轮评审清单'],['reviewer-prompt.md','评审子 agent 提示词']],
-  dont:['不写“建议优化”这种空话','单独使用时不擅自改代码']},
- {id:'dev-accept', n:7, t:'验收', sum:'几分钟判断“是不是我要的”',
-  icons:'hbp', trig:'评审完成后自动进入；或对某个需求说“验收”。',
-  reads:'所有需求文件、截图、git log',
-  out:'验收页', next:'关口 C → dev-cicd；打回 → 加返工任务回到 dev-implement',
-  steps:[
-   ['收集','spec、design、tasks、decisions、test-report、review、截图、提交记录。',''],
-   ['核对','完整（任务、需求、场景都覆盖）、正确（亲自在浏览器走 2–3 个关键场景）、一致（设计决定在代码里）、干净（无临时文件、测试全过）。严重问题能修的自动返工 1 次。','b'],
-   ['验收页','结论、紧急、需要你决定的 c/d、场景对照表 + 截图、改动概览、后续清单、怎么自己试。','p'],
-   ['关口 C','一页简报。改代码的回复 → 加返工任务，走 实现→测试→评审→验收，更新同一个验收页。','h']],
-  refs:[],
-  dont:[]},
- {id:'dev-cicd', n:8, t:'交付', sum:'对外动作一次确认',
-  icons:'h', trig:'验收通过后自动进入；或“发布”“部署”“合并”“搭 CI”。',
-  reads:'.devflow.yml 的 commands 和 release、已有 CI 和部署方式',
-  out:'合并、推送、CI、发布、部署', next:'状态改为“已交付”',
-  steps:[
-   ['了解现状','已有 CI、部署方式、项目自己的发布 skill；已有的优先沿用。',''],
-   ['CI（需要时）','和本地一样：安装→lint→测试→构建→浏览器测试；CI 里用本机无头浏览器；密钥只引用 secrets。',''],
-   ['关口 D','推送、PR、合并、发布、部署、上线后检查，列成一份清单，一次确认。可回“只到 3”“跳过”。','h'],
-   ['执行','逐步执行并记录；CI 失败修复后重推，同一问题 3 次停下；部署交给项目自己的方式。',''],
-   ['完成后','上线后检查（可用浏览器截图），状态改为“已交付”。','b']],
-  refs:[['github-docker-example.md','GitHub Actions + Docker 示意']],
-  dont:['不一个一个问','失败时不强推、不删 tag、不手改服务器']}
+const T={h:'<span class="chip c-human">你</span>',m:'<span class="chip c-ok">机器关口</span>',a:'<span class="chip c-agent">验证者</span>',b:'<span class="chip c-browser">浏览器</span>',p:'<span class="chip c-page">vibeview</span>'};
+const STAGES=[
+ {id:'dev-requirements',n:1,t:'需求',sum:'定方向：一次问清、写死',icons:'hap',
+  trig:'提新功能、新想法、较大改动、写 spec 时。微小改动直接修。',reads:'代码、文档、git log、.devflow.yml',
+  out:'spec.md（场景 + 完成条件）、效果页；小规模还有 tasks.md',next:'标准 → dev-design；小规模 → dev-build',
+  steps:[['定规模、开分支、建文件夹','从默认分支开 change/<短名>；一批需求每个各开一个。',''],
+   ['先查','读代码和文档，说清现在怎么工作、改哪里、能复用什么。',''],
+   ['需求评审','前提挑战、产品方案（含最小可行）、范围模式、缺口扫描；能用原型回答的先跑原型。',''],
+   ['一条评审消息','理解 + 前提 + 方案 + 范围 + 问题，全部带推荐；没有歧义时跳过。','h'],
+   ['写 spec','“系统必须…”+ 场景；写明完成条件。',''],
+   ['新人通读','没看过对话的子 agent 找必须靠猜的地方。','a'],
+   ['效果页','有界面或流程时生成可点的效果页。','p'],
+   ['关口 A','要做 / 不做、场景、假设、问题、效果页；L3 一批一次确认。','h']],
+  refs:[['product-review.md','需求评审方法'],['gap-checklist.md','缺口清单'],['spec-template.md','spec 模板'],['builder-check-prompt.md','新人通读提示词']]},
+ {id:'dev-design',n:2,t:'设计',sum:'选定做法，拆到不用再决定',icons:'am',
+  trig:'关口 A 通过后自动进入。小规模跳过。',reads:'spec、decisions、代码',
+  out:'design.md、tasks.md',next:'机器关口 B → dev-build',
+  steps:[['选方案','能实验的用原型定，其余按原则选；难以回头的只暂停那一项。',''],
+   ['技术方案','结构、接口、数据、状态、安全、需求覆盖。',''],
+   ['前置验证','设计依赖的前提实际跑一遍。',''],
+   ['测试计划 + 拆任务','场景分层（浏览器测试归 dev-test）；任务写清文件、接口、断言、完成定义。',''],
+   ['工程评审','全新子 agent 评审方案加任务。','a'],
+   ['机器关口 B','验证者核对需求覆盖、前置验证、未决事项；L1 再请你看一眼。','am']],
+  refs:[['design-template.md','设计模板（含方案验证）'],['tasks-template.md','任务模板'],['eng-review-prompt.md','工程评审提示词']]},
+ {id:'dev-build',n:3,t:'开发',sum:'连续做完，不打扰你',icons:'a',
+  trig:'机器关口 B 放行后自动进入。',reads:'tasks.md、design.md、decisions.md',
+  out:'代码、提交、review.md',next:'可提测 → dev-test',
+  steps:[['逐个任务','先写测试确认失败 → 实现 → 跑测试 → 提交 → 记进度。',''],
+   ['裁决不停等','歧义记 d；只有人能做的记 c 并只阻塞相关任务；范围外进“后续”。',''],
+   ['全量测试','单元、集成、lint 全跑。',''],
+   ['独立评审','调用 dev-review：问题要有运行证据，明确错误先写回归测试再修。','a'],
+   ['可提测','任务完成或阻塞、测试全过、无未处理严重问题、无未提交改动 → 自动进入测试。','m']],
+  refs:[]},
+ {id:'dev-test',n:4,t:'测试',sum:'真实环境里证明每个场景',icons:'bam',
+  trig:'可提测后自动进入。',reads:'spec、tasks、环境配置',
+  out:'浏览器测试、test-report.md、verdict.md、截图',next:'机器关口 C → dev-release',
+  steps:[['准备环境','按 e2e_env / verify_env 取地址，缺的问一次；连测试浏览器。','b'],
+   ['项目验证 skill','没有就生成 verify-<项目名> 并跑通。',''],
+   ['补齐测试','每个浏览器场景一个 Playwright 测试，截图留证。','b'],
+   ['探索式检查 + 修复','像人一样逐页点；先写回归测试再修。','b'],
+   ['验收核对','完整、正确、一致、干净。',''],
+   ['部署到验证环境','共享环境用配置的 deploy 命令部署这个提交并确认 sha。',''],
+   ['机器关口 C','验证者在真实环境独立验证；不通过 → 返工回开发。','abm']],
+  refs:[['browser.md','连浏览器、被测地址、安全'],['e2e-example.md','Playwright 写法（已实测）'],['explore-checklist.md','探索检查清单'],['verify-skill.md','生成项目验证 skill'],['report-template.md','测试报告模板']]},
+ {id:'dev-release',n:5,t:'发布',sum:'合并凭结论，上生产凭你',icons:'mh',
+  trig:'机器关口 C 放行后自动进入。',reads:'release 配置、已有 CI 和部署方式',
+  out:'合并、版本、上线记录',next:'已发布',
+  steps:[['推送、开 PR、等 CI','不需要确认；CI 失败修复后重推。',''],
+   ['检查结论还覆盖代码','比较代码指纹、看默认分支是否前移，不一致就复验。','a'],
+   ['合并','前提：无阻塞任务、无未决 c；L1 先请你确认，L2/L3 直接合并。','m'],
+   ['上生产确认','发布、部署、上线检查列成一份清单，一次确认；L3 整批一份。','h'],
+   ['执行和检查','交给项目自己的发布方式；production 只读检查。','b']],
+  refs:[['github-docker-example.md','CI/CD 示意（不能直接用）']]}
 ];
-const GATES = [ // column index (1-based) where gate sits above, label
- {col:1,id:'dev-requirements',k:'评审消息',d:'理解、前提、方案、范围、问题',soft:true},
- {col:1,id:'dev-requirements',k:'关口 A',d:'需求确认 + 效果页'},
- {col:3,id:'dev-plan',k:'关口 B',d:'方案确认 + 简报页'},
- {col:7,id:'dev-accept',k:'关口 C',d:'验收 + 截图'},
- {col:8,id:'dev-cicd',k:'关口 D',d:'对外动作一次确认'}
-];
-const ICON = {h:'<span class="chip c-human">你</span>',a:'<span class="chip c-agent">子agent</span>',b:'<span class="chip c-browser">浏览器</span>',p:'<span class="chip c-page">vibeview</span>'};
-
-function lanes(){
-  const el=document.getElementById('lanes');
-  let h='<div class="lane-label h">你</div><div class="lane h">';
-  for(let c=1;c<=8;c++){
-    const gs=GATES.filter(g=>g.col===c);
-    if(!gs.length){h+=`<div class="empty" style="grid-column:${c}"></div>`;continue;}
-    h+=`<div class="gcell" style="grid-column:${c};display:flex;flex-direction:column;gap:6px">`+gs.map(g=>`<div class="gate${g.soft?' soft':''}" data-id="${g.id}"><b>${g.k}</b>${g.d}</div>`).join('')+'</div>';
-  }
-  h+='</div><div class="lane-label a">AI</div><div class="lane a">';
-  STAGES.forEach(s=>{
-    const ic=[...s.icons].map(k=>ICON[k]).join('');
-    h+=`<div class="stage" data-id="${s.id}"><div class="n">${s.n}</div><div class="t">${s.t}</div><div class="s">${s.id}</div><div style="font-size:12px;margin-top:4px">${s.sum}</div><div class="icons">${ic||'<span class="chip c-auto">全自动</span>'}</div></div>`;
-  });
-  h+='</div><div class="lanefoot">贯穿所有阶段：<code>dev-workflow</code>（总纲 + 共用规则）。每个阶段开头先读它；做完后把状态行“阶段”改成下一个，读下一个 SKILL.md 继续。小规模：跳过设计，关口 A 和 B 合并成 AB。</div>';
-  el.innerHTML=h;
-  el.querySelectorAll('[data-id]').forEach(n=>n.addEventListener('click',()=>{show(n.dataset.id);document.getElementById('detail').scrollIntoView();}));
-}
-function show(id){
-  const s=STAGES.find(x=>x.id===id);
-  document.querySelectorAll('.stage').forEach(n=>n.classList.toggle('sel',n.dataset.id===id));
-  const steps=s.steps.map(([h,d,tg])=>{
-    const tags=[...tg].map(k=>T[k]).join('');
-    return `<li class="${tg.includes('h')?'ask':''}"><div class="h">${h}</div><div class="d">${d}</div>${tags?`<div class="tags">${tags}</div>`:''}</li>`;}).join('');
-  const refs=s.refs.length?`<h3>它自己的参考文件</h3><div class="refs">${s.refs.map(r=>`<div class="ref"><code>${s.id}/references/${r[0]}</code><br>${r[1]}</div>`).join('')}</div>`:'';
-  const dont=s.dont.length?`<h3>不做的事</h3><ul class="dont">${s.dont.map(x=>`<li>${x}</li>`).join('')}</ul>`:'';
-  document.getElementById('detailBox').innerHTML=`
-   <div class="side">
-     <div class="name">${s.id}</div><div class="title">${s.n}. ${s.t}</div>
-     <div>${s.sum}</div>
-     <div class="kv"><b>什么时候触发</b>${s.trig}</div>
-     <div class="kv"><b>读什么</b>${s.reads}；以及 dev-workflow 的共用规则</div>
-     <div class="kv"><b>产出</b>${s.out}</div>
-     <div class="kv"><b>交给</b>${s.next}</div>
-     <div class="kv"><b>切换阶段</b><select id="sel" style="width:100%;padding:4px;margin-top:2px">${STAGES.map(x=>`<option value="${x.id}" ${x.id===id?'selected':''}>${x.n}. ${x.t}（${x.id}）</option>`).join('')}</select></div>
-   </div>
-   <div><h3 style="margin-top:0">它做了什么</h3><ol class="steps">${steps}</ol>${refs}${dont}</div>`;
-  document.getElementById('sel').addEventListener('change',e=>show(e.target.value));
-}
-const TL=[
- ['you','你','“我想让预览页能直接评论，评审完能确认签字”'],
+const GATES=[{col:1,id:'dev-requirements',k:'评审消息',d:'理解、前提、方案、范围、问题',cls:'soft'},
+ {col:1,id:'dev-requirements',k:'关口 A',d:'定方向：需求确认 + 效果页'},
+ {col:2,id:'dev-design',k:'机器关口 B',d:'方案验证（L1 再看一眼）',cls:'mach'},
+ {col:3,id:'dev-build',k:'可提测',d:'机器判断',cls:'mach'},
+ {col:4,id:'dev-test',k:'机器关口 C',d:'独立验证（L1 再看一眼）',cls:'mach'},
+ {col:5,id:'dev-release',k:'合并',d:'凭验证结论',cls:'mach'},
+ {col:5,id:'dev-release',k:'上生产',d:'你一次确认'}];
+function lanes(){const el=document.getElementById('lanes');
+ let h='<div class="lane-label h">你 / 机器</div><div class="lane h">';
+ for(let c=1;c<=5;c++){const gs=GATES.filter(g=>g.col===c);
+  h+=`<div class="gcell" style="grid-column:${c};display:flex;flex-direction:column;gap:6px">`+gs.map(g=>`<div class="gate ${g.cls||''}" data-id="${g.id}"><b>${g.k}</b>${g.d}</div>`).join('')+'</div>';}
+ h+='</div><div class="lane-label a">AI</div><div class="lane a">';
+ STAGES.forEach(s=>{const ic=[...s.icons].map(k=>T[k]).join('');
+  h+=`<div class="stage" data-id="${s.id}"><div class="n">${s.n}</div><div class="t">${s.t}</div><div class="s">${s.id}</div><div style="font-size:12.5px;margin-top:4px">${s.sum}</div><div class="icons">${ic}</div></div>`;});
+ h+='</div><div class="lanefoot">贯穿所有阶段：<code>dev-workflow</code>（总纲、状态、自主等级、共用规则）、<code>dev-review</code>（通用评审，开发阶段调用，也可单独用）。小规模跳过设计：需求阶段写好任务，关口 A 一起确认。</div>';
+ el.innerHTML=h;
+ el.querySelectorAll('[data-id]').forEach(n=>n.addEventListener('click',()=>{show(n.dataset.id);document.getElementById('detail').scrollIntoView();}));}
+function show(id){const s=STAGES.find(x=>x.id===id);
+ document.querySelectorAll('.stage').forEach(n=>n.classList.toggle('sel',n.dataset.id===id));
+ const steps=s.steps.map(([h,d,tg])=>`<li class="${tg.includes('h')?'ask':''}"><div class="h">${h}</div><div class="d">${d.replace(/</g,'&lt;')}</div>${tg?`<div class="tags">${[...tg].map(k=>T[k]).join('')}</div>`:''}</li>`).join('');
+ const refs=s.refs.length?`<h3>它自己的参考文件</h3><div class="refs">${s.refs.map(r=>`<div class="ref"><code>${s.id}/references/${r[0]}</code><br>${r[1]}</div>`).join('')}</div>`:'';
+ document.getElementById('detailBox').innerHTML=`<div class="side"><div class="name">${s.id}</div><div class="title">${s.n}. ${s.t}</div><div>${s.sum}</div>
+  <div class="kv"><b>什么时候进入</b>${s.trig}</div><div class="kv"><b>读什么</b>${s.reads}；以及 dev-workflow 的共用规则</div>
+  <div class="kv"><b>产出</b>${s.out}</div><div class="kv"><b>交给</b>${s.next}</div>
+  <div class="kv"><b>切换阶段</b><select id="sel" style="width:100%;padding:4px;margin-top:2px">${STAGES.map(x=>`<option value="${x.id}" ${x.id===id?'selected':''}>${x.n}. ${x.t}（${x.id}）</option>`).join('')}</select></div></div>
+  <div><h3 style="margin-top:0">它做了什么</h3><ol class="steps">${steps}</ol>${refs}</div>`;
+ document.getElementById('sel').addEventListener('change',e=>show(e.target.value));}
+const TL=[['you','你','“我想让预览页能直接评论”'],
  ['ai','dev-requirements','读代码 → 前提挑战 → 方案和范围 → 缺口扫描'],
- ['you','你 · 评审消息','看理解、3 条前提、2 个方案、2 个扩展、3 个问题，回 <code>all</code>（或 <code>E2 推迟</code>）'],
- ['ai','dev-requirements','写 spec（12 个场景）→ 子 agent 新人通读 → 生成效果页上传 vibeview'],
- ['you','你 · 关口 A','打开效果页点一点，看要做/不做和 4 条假设，回 <code>all</code>'],
- ['ai','dev-design → dev-plan','选方案（d1、d2）→ 前置验证 → 子 agent 工程评审 → 拆 9 个任务 → 方案简报页'],
- ['you','你 · 关口 B','看一页简报：2 个口味型决定（带默认），回 <code>all</code>'],
- ['ai','dev-implement → dev-test → dev-review','9 个任务逐个先测试后实现、提交；远程浏览器跑 12 个场景并截图；探索式检查修了 2 个问题；子 agent 评审修了 1 个，另有 1 个挑战型 c1'],
- ['you','你 · 关口 C','打开验收页看截图和 c1，回 <code>c1 同意</code>（AI 返工后更新同一个验收页，再回 <code>all</code>）'],
- ['ai','dev-cicd','列出：推送、开 PR、合并、发布 1.4.5、部署、上线后检查'],
- ['you','你 · 关口 D','回 <code>all</code>，AI 依次执行，最后报告版本和检查结果']
-];
-function timeline(){document.getElementById('tl').innerHTML=TL.map(([c,w,t])=>`<div class="ev ${c==='you'?'you':''}"><div class="who">${w}</div><div class="txt">${t}</div></div>`).join('');}
-function matrix(){
-  const F=[['dev-workflow/SKILL.md','总纲'],['decisions.md','决定规则'],['questions.md','提问格式'],['gates.md','关口简报'],['layout.md','文件和状态'],['config.md','配置'],['preview.md','vibeview 页面'],['自己的 references','']];
-  const use={
-   'dev-requirements':[1,1,1,1,1,1,1,1],'dev-design':[1,1,0,0,0,1,0,1],'dev-plan':[1,1,0,1,0,1,1,1],
-   'dev-implement':[1,1,0,0,0,1,0,0],'dev-test':[1,1,0,0,0,1,0,1],'dev-review':[1,1,0,0,0,1,0,1],
-   'dev-accept':[1,1,0,1,0,1,1,0],'dev-cicd':[1,1,0,1,0,1,0,1]};
-  let h='<table><tr><th>skill</th>'+F.map(f=>`<th>${f[0]}${f[1]?`<br><span class="muted" style="font-weight:400">${f[1]}</span>`:''}</th>`).join('')+'</tr>';
-  STAGES.forEach(s=>{h+=`<tr><td><code>${s.id}</code></td>`+use[s.id].map((v,i)=>`<td style="text-align:center">${v?(i===7?String(s.refs.length):'●'):'<span class="muted">—</span>'}</td>`).join('')+'</tr>';});
-  document.getElementById('matrix').innerHTML=h+'</table><p class="muted" style="font-size:12.5px">● 读这个文件；数字是它自己 references/ 下的文件数。config.md 由 dev-workflow“每次开始时”统一读取，layout.md 在建文件、改状态时按需读。</p>';
-}
-function sm(){
-  const svg=document.getElementById('sm');
-  const N=[['草案',20],['已确认',180],['实现中',340],['待验收',500],['已完成',660],['已交付',820]];
-  const y=70,w=100,hgt=40;
-  let s=`<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#64748b"/></marker>
-  <marker id="arh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#b45309"/></marker></defs>`;
-  const lbl=['关口 A','关口 B','开始验收','关口 C','关口 D'];
-  N.forEach(([t,x],i)=>{
-    s+=`<rect x="${x}" y="${y}" width="${w}" height="${hgt}" rx="8" fill="${i===5?'#f0fdf4':'#ffffff'}" stroke="${i===5?'#15803d':'#2563eb'}" stroke-width="1.5"/>`;
-    s+=`<text x="${x+w/2}" y="${y+25}" text-anchor="middle" font-size="14" font-weight="600" fill="#1e293b">${t}</text>`;
-    if(i<5){const x1=x+w,x2=N[i+1][1];s+=`<line x1="${x1}" y1="${y+20}" x2="${x2-2}" y2="${y+20}" stroke="#64748b" stroke-width="1.5" marker-end="url(#ar)"/>`;
-      s+=`<text x="${(x1+x2)/2}" y="${y+12}" text-anchor="middle" font-size="11.5" fill="${lbl[i].startsWith('关口')?'#b45309':'#64748b'}">${lbl[i]}</text>`;}
-  });
-  // small: 草案 -> 实现中 (AB)
-  s+=`<path d="M70,${y} C 70,18 390,18 390,${y-2}" fill="none" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.5" marker-end="url(#ar)"/>`;
-  s+=`<text x="230" y="22" text-anchor="middle" font-size="11.5" fill="#2563eb">小规模：关口 AB 直接到实现中</text>`;
-  // gate C 打回 -> 实现中
-  s+=`<path d="M550,${y+hgt} C 550,190 390,190 390,${y+hgt+2}" fill="none" stroke="#b45309" stroke-width="1.5" marker-end="url(#arh)"/>`;
-  s+=`<text x="470" y="205" text-anchor="middle" font-size="11.5" fill="#b45309">关口 C 打回：加返工任务</text>`;
-  s+=`<text x="470" y="220" text-anchor="middle" font-size="11.5" fill="#b45309">实现 → 测试 → 评审 → 验收</text>`;
-  // 已完成 跳过 D
-  s+=`<text x="710" y="${y+hgt+20}" text-anchor="middle" font-size="11.5" fill="#64748b">关口 D 回“跳过”</text>`;
-  s+=`<text x="710" y="${y+hgt+35}" text-anchor="middle" font-size="11.5" fill="#64748b">停在已完成</text>`;
-  // 搁置
-  s+=`<rect x="970" y="${y}" width="100" height="40" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="4 3"/><text x="1020" y="${y+25}" text-anchor="middle" font-size="14" fill="#64748b">搁置</text>`;
-  s+=`<text x="1020" y="${y+60}" text-anchor="middle" font-size="11.5" fill="#64748b">任何时候你说不做了</text>`;
-  // gate B rework note
-  s+=`<text x="230" y="${y+hgt+20}" text-anchor="middle" font-size="11.5" fill="#64748b">关口 B 改了方案：</text><text x="230" y="${y+hgt+35}" text-anchor="middle" font-size="11.5" fill="#64748b">重跑工程评审和计划</text>`;
-  svg.innerHTML=s;
-}
+ ['you','你 · 评审消息','看 3 条前提、2 个方案、3 个问题，回 <code>all</code>'],
+ ['ai','dev-requirements','写 spec（12 个场景 + 完成条件）→ 新人通读 → 效果页'],
+ ['you','你 · 关口 A','打开效果页点一点，回 <code>all</code>'],
+ ['ai','dev-design','选方案（d1）→ 前置验证 → 拆 9 个任务 → 工程评审'],
+ ['mach','机器关口 B','验证者核对方案覆盖全部场景 → 放行，汇总页更新'],
+ ['ai','dev-build','9 个任务逐个先测试后实现；独立评审修了 1 个问题'],
+ ['mach','可提测','测试全过、无严重问题 → 进入测试'],
+ ['ai','dev-test','远程浏览器跑 12 个场景并截图；探索检查修了 2 个问题'],
+ ['mach','机器关口 C','另一个模型独立验证：通过 → 汇总页更新（你随时可看）'],
+ ['mach','合并','代码指纹一致 → 自动合并'],
+ ['you','你 · 上生产','看清单（发布 1.4.5、部署、上线检查），回 <code>all</code>'],
+ ['ai','dev-release','执行发布和部署，production 只读检查，汇总里报告版本和结果']];
+function timeline(){document.getElementById('tl').innerHTML=TL.map(([c,w,t])=>`<div class="ev ${c}"><div class="who">${w}</div><div class="txt">${t}</div></div>`).join('');}
+function matrix(){const F=[['decisions.md','决定规则'],['questions.md','提问格式'],['gates.md','关口和汇总'],['verification.md','机器验证'],['layout.md','文件和状态'],['config.md','配置和环境'],['preview.md','页面']];
+ const use={'dev-requirements':[1,1,1,0,1,1,1],'dev-design':[1,0,1,1,0,1,0],'dev-build':[1,0,0,0,0,1,0],'dev-review':[1,0,0,1,0,1,0],'dev-test':[1,0,1,1,0,1,1],'dev-release':[1,0,1,1,0,1,0]};
+ let h='<table><tr><th>skill</th>'+F.map(f=>`<th>${f[0]}<br><span class="muted" style="font-weight:400">${f[1]}</span></th>`).join('')+'<th>自己的参考文件</th></tr>';
+ STAGES.forEach(s=>{h+=`<tr><td><code>${s.id}</code></td>`+use[s.id].map(v=>`<td style="text-align:center">${v?'●':'<span class="muted">—</span>'}</td>`).join('')+`<td style="text-align:center">${s.refs.length||'—'}</td></tr>`;});
+ h+=`<tr><td><code>dev-review</code></td>`+use['dev-review'].map(v=>`<td style="text-align:center">${v?'●':'<span class="muted">—</span>'}</td>`).join('')+'<td style="text-align:center">2</td></tr>';
+ document.getElementById('matrix').innerHTML=h+'</table><p class="muted" style="font-size:12.5px">所有 skill 开头都先读 dev-workflow/SKILL.md；config.md 在“每次开始时”统一读取，layout.md 在建文件、改状态时按需读。</p>';}
+function sm(){const svg=document.getElementById('sm');
+ const N=[['草案',10],['已确认',176],['开发中',342],['测试中',508],['已验证',674],['已合并',840],['已发布',1006]];
+ const y=80,w=96,hg=40,lbl=['关口 A','机器关口 B','可提测','机器关口 C','合并','上生产'];
+ let s=`<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#64748b"/></marker><marker id="arh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="#b45309"/></marker></defs>`;
+ N.forEach(([t,x],i)=>{s+=`<rect x="${x}" y="${y}" width="${w}" height="${hg}" rx="8" fill="${i===6?'#f0fdf4':'#fff'}" stroke="${i===6?'#15803d':'#2563eb'}" stroke-width="1.5"/><text x="${x+w/2}" y="${y+25}" text-anchor="middle" font-size="14" font-weight="600" fill="#1e293b">${t}</text>`;
+  if(i<6){const x1=x+w,x2=N[i+1][1];const human=(i===0||i===5);s+=`<line x1="${x1}" y1="${y+20}" x2="${x2-2}" y2="${y+20}" stroke="#64748b" stroke-width="1.5" marker-end="url(#ar)"/><text x="${(x1+x2)/2}" y="${y+12}" text-anchor="middle" font-size="11" fill="${human?'#b45309':'#15803d'}">${lbl[i]}</text>`;}});
+ s+=`<path d="M58,${y} C 58,22 390,22 390,${y-2}" fill="none" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.5" marker-end="url(#ar)"/><text x="224" y="26" text-anchor="middle" font-size="11.5" fill="#2563eb">小规模：关口 A 后直接开发</text>`;
+ s+=`<path d="M556,${y+hg} C 556,200 390,200 390,${y+hg+2}" fill="none" stroke="#b45309" stroke-width="1.5" marker-end="url(#arh)"/><text x="473" y="214" text-anchor="middle" font-size="11.5" fill="#b45309">验证不通过：返工任务</text><text x="473" y="229" text-anchor="middle" font-size="11.5" fill="#b45309">开发 → 测试 → 复验</text>`;
+ s+=`<text x="888" y="${y+hg+20}" text-anchor="middle" font-size="11.5" fill="#64748b">上生产回“跳过”</text><text x="888" y="${y+hg+35}" text-anchor="middle" font-size="11.5" fill="#64748b">停在已合并</text>`;
+ s+=`<rect x="1130" y="${y}" width="90" height="40" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-dasharray="4 3"/><text x="1175" y="${y+25}" text-anchor="middle" font-size="14" fill="#64748b">搁置</text><text x="1175" y="${y+60}" text-anchor="middle" font-size="11.5" fill="#64748b">任何时候</text>`;
+ svg.innerHTML=s;}
 lanes();show('dev-requirements');timeline();matrix();sm();
 </script>
 </body>

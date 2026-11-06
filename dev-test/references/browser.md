@@ -45,9 +45,9 @@ const { chromium } = require('@playwright/test');
 
 **浏览器在另一台机器上时，它的 `localhost` 是它自己，不是你这台。**
 
-1. 用 `commands.dev` 在后台启动本地服务（已经在运行就不用），等 `commands.dev_url` 在本机能访问。服务要监听 `0.0.0.0`，不能只监听 `127.0.0.1`。
-2. 按 config.md 的规则算出 `base_url`（环境变量 `DEVFLOW_BASE_URL` → 本机 `browser.host` 替换主机 → `dev_url`）。
-3. 用远程浏览器打开 `base_url`，确认状态码正常、不是浏览器的错误页：
+1. 被测的是 local 环境时：用 `environments.local.start` 在后台启动本地服务（已经在运行就不用），等它在本机能访问。服务要监听 `0.0.0.0`，不能只监听 `127.0.0.1`。staging 等共享环境不启动。
+2. 按 dev-workflow 的 config.md“环境地址”规则取被测环境的地址，下面叫 `base_url`（local 时把 localhost 换成本机配置的 `browser.host`，因为浏览器在另一台机器上）。
+3. 用测试浏览器打开 `base_url`，确认状态码正常、不是浏览器的错误页：
 
 ```js
 const page = await (await browser.newContext()).newPage();
@@ -56,7 +56,7 @@ console.log(resp && resp.status(), await page.title());
 ```
 
 打不开时，按顺序处理（都是机械型问题，自己排查，不问人）：
-- 服务只监听了 `127.0.0.1` → 改启动参数或环境变量（比如 `HOST=0.0.0.0`），记一行到 decisions.md；
+- 服务只监听了 `127.0.0.1` → 改启动参数或环境变量（比如 `HOST=0.0.0.0`），记一行到 decisions.md；得到能用的地址后写进本机配置本项目下，不写进 `.devflow.yml`；
 - 本机防火墙没放行端口 → 记进报告，换下一种办法；
 - 本机配置有 `browser.ssh_host` → 在**这台机器**上建立反向隧道，让浏览器那台的 `localhost:<端口>` 转到这台的服务：
   ```bash
@@ -68,8 +68,8 @@ console.log(resp && resp.status(), await page.title());
 ## 第三步：远程浏览器用不了时
 
 按顺序退：
-1. 本机能启动无头 Chromium（报 `Executable doesn't exist` 就先 `npx playwright install chromium`）→ 用本机浏览器跑，`base_url` 用 `dev_url`。报告里写明“用本机无头浏览器，未用远程浏览器”。
-2. 都不行 → 跳过浏览器测试，报告开头醒目地写“未做浏览器测试”和原因，关口 C 简报的“紧急”一栏也要写。
+1. 本机能启动无头 Chromium（报 `Executable doesn't exist` 就先 `npx playwright install chromium`）→ 用本机浏览器跑，local 环境的 `base_url` 用不替换主机的本机地址。报告里写明“用本机无头浏览器，未用远程浏览器”。
+2. 都不行 → 跳过浏览器测试，报告开头醒目地写“未做浏览器测试”和原因，并写进汇总的“等你决定”（这时机器关口 C 不能放行）。
 
 不要因此停下来问人。
 
