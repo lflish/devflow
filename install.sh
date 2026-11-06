@@ -29,7 +29,7 @@ backup() { # $1=目标目录 $2=要移走的路径
   echo "已备份 $2 → $sub/$(basename "$2")"
 }
 
-if [ ${#TARGETS[@]} -eq 0 ]; then
+if [ -z "${TARGETS[*]:-}" ]; then   # 兼容 macOS 自带的 bash 3.2（set -u 下空数组会报错）
   echo "没有找到 ~/.claude 或 ~/.codex，未安装。" >&2
   exit 1
 fi
