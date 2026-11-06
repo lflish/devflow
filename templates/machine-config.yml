@@ -1,6 +1,8 @@
 # ~/.config/devflow/config.yml —— 本机配置，不进任何仓库，可以写真实地址
 browser:
-  cdp_url_env: DEVFLOW_BROWSER_CDP   # 测试浏览器 CDP 地址所在的环境变量
+  provider: local                    # local（本机无头）/ cdp（自己的另一台机器）/ steel / kernel（云浏览器，只能测公网地址）
+  cdp_url_env: DEVFLOW_BROWSER_CDP   # provider=cdp 时，CDP 地址所在的环境变量
+  key_env: ""                        # provider=steel/kernel 时，API key 所在的环境变量名，例如 CHROME_KEY
   host: ""                           # 浏览器那台机器访问“这台机器”用的地址
   # ssh_host: ""                     # 可选：访问不到时，在这台机器上建反向隧道
 preview:

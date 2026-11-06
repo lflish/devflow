@@ -33,6 +33,7 @@ environments:
 test:
   e2e_env: local
   verify_env: local            # 有 staging 时改成 staging
+  cloud_browser: allowed       # 页面和截图会经过云浏览器服务商；数据敏感的项目改成 forbidden
 
 rules:
   requirements: []

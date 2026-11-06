@@ -66,6 +66,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1          # status / unins
 2. 浏览器：在 shell 配置里设置 `export DEVFLOW_BROWSER_CDP=http://<浏览器主机>:9222`。
    - 远程 Chrome 用 `--remote-debugging-port=9222 --user-data-dir=<单独目录>` 启动（新版 Chrome 不允许对默认配置目录开调试端口）。Chrome 默认只监听浏览器那台的 127.0.0.1，要从这台访问，用 SSH 隧道（在这台执行 `ssh -N -L 9222:localhost:9222 <浏览器主机>`，此时地址是 `http://localhost:9222`）或在那台做端口转发。也可以用 neko、steel-browser 等直接提供 CDP 的服务。
    - 这个端口能完全控制浏览器，只在内网或 Tailscale 上开放。
+   - 也可以用云浏览器（只能测公网地址，比如部署好的 staging）：在 [Steel](https://app.steel.dev) 或 [Kernel](https://dashboard.onkernel.com) 注册，把 API key 放进环境变量（例如在 `~/.bashrc` 里 `export CHROME_KEY=...`，文件权限 600），本机配置写 `browser.provider: steel`、`browser.key_env: CHROME_KEY`。Steel 已实测；免费档单个会话最长 15 分钟。
 3. 可选，让 AI 能像人一样点页面（探索式检查）：
    ```bash
    claude mcp add -s user playwright -- npx @playwright/mcp@latest --cdp-endpoint "$DEVFLOW_BROWSER_CDP"

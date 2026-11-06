@@ -44,6 +44,7 @@ environments:                   # 有哪些环境；地址一律写变量名
 test:
   e2e_env: local                # 开发时跑浏览器测试的环境
   verify_env: staging           # 机器关口 C 独立验证的环境；用户说过没有这个环境（url: none）时用 e2e_env
+  cloud_browser: allowed        # allowed / forbidden：页面和截图会经过云浏览器服务商，数据敏感的项目写 forbidden
 
 rules:                          # 只对某个阶段生效的额外规则
   requirements: []
@@ -64,8 +65,10 @@ release:
 
 ```yaml
 browser:
-  cdp_url_env: DEVFLOW_BROWSER_CDP   # 测试浏览器 CDP 地址所在的环境变量
-  host: 192.168.1.20                 # 浏览器那台机器访问“这台机器”用的地址
+  provider: cdp                      # local / cdp / steel / kernel；不写时有 CDP 地址就是 cdp，否则 local
+  cdp_url_env: DEVFLOW_BROWSER_CDP   # provider=cdp 时，CDP 地址所在的环境变量
+  key_env: CHROME_KEY                # provider=steel/kernel 时，API key 所在的环境变量（key 本身不写进任何文件）
+  host: 192.168.1.20                 # cdp 时：浏览器那台机器访问“这台机器”用的地址
   # ssh_host: browser-box            # 可选：访问不到时，在这台机器上建反向隧道
 preview:
   vibeview: auto                     # auto：装了 dview 且配置了 DVIEW_URL 就用；off：不用

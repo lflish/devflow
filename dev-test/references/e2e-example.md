@@ -1,7 +1,7 @@
 # 浏览器端到端测试：写法示例
 
 用 Playwright Test。项目里已经有别的 E2E 框架（Cypress 等）时，跟随项目，但要能连远程浏览器。
-下面的配置和写法已在“远程 CDP 浏览器”和“本机无头浏览器”两种情况下实测通过。
+下面的配置和写法已在“本机无头浏览器”“远程 CDP 浏览器”和 Steel 云浏览器上实测通过。
 
 ## 安装（项目还没有时）
 
@@ -17,40 +17,46 @@ npm i -D @playwright/test
 ```js
 const { defineConfig } = require('@playwright/test');
 
-const remote = !!process.env.DEVFLOW_BROWSER_CDP;
+const remote = !!process.env.DEVFLOW_BROWSER_CDP
+  || ['cdp', 'steel', 'kernel'].includes(process.env.DEVFLOW_BROWSER_PROVIDER);
 
 module.exports = defineConfig({
   testDir: 'tests/e2e',
-  timeout: remote ? 60_000 : 30_000,   // 远程浏览器隔着网络，开关页面更慢
-  workers: remote ? 1 : undefined,     // 远程浏览器只有一个，串行跑
+  // 远程浏览器隔着网络更慢；机器很慢时用 DEVFLOW_E2E_TIMEOUT_MS 放宽（比如 1 核小内存的服务器）
+  timeout: Number(process.env.DEVFLOW_E2E_TIMEOUT_MS) || (remote ? 60_000 : 30_000),
+  workers: remote ? 1 : undefined,     // 远程和云浏览器串行跑：少占会话，也少花钱
   use: {
     baseURL: process.env.DEVFLOW_BASE_URL || 'http://localhost:3000',
     screenshot: 'only-on-failure',
-    trace: remote ? 'off' : 'retain-on-failure',  // 远程时录 trace 会明显变慢
+    // 远程时录 trace 会明显变慢；很慢的机器上本机也会卡住，用 DEVFLOW_E2E_TRACE=off 关掉
+    trace: process.env.DEVFLOW_E2E_TRACE || (remote ? 'off' : 'retain-on-failure'),
   },
 });
 ```
 
-本机运行报 `Executable doesn't exist` 时，说明本机浏览器和 `@playwright/test` 的版本对不上，执行 `npx playwright install chromium` 后重跑。
+本机运行报 `Executable doesn't exist` 时，说明本机浏览器和 `@playwright/test` 的版本对不上，执行 `npx playwright install chromium` 后重跑；或者设 `DEVFLOW_CHROME_PATH` 用系统装的 Chrome。
+
+机器很慢（比如 1 核、内存不到 2 GB）时，测试可能超时或卡住：设 `DEVFLOW_E2E_TIMEOUT_MS=120000`、`DEVFLOW_E2E_TRACE=off`。实测在 1 核 2 GB 的服务器上，打开 trace 会卡住，关掉后一个测试约 45 秒。
 
 CI 里要自动启动被测服务时，加上 `webServer: { command: 'npm run dev', url: 'http://localhost:3000', reuseExistingServer: true }`。
 
-## 连接远程或本机浏览器，以及截图 `tests/e2e/fixtures.js`
+## 打开浏览器 `tests/e2e/devflow-browser.js`
+
+从 dev-test 的 `references/devflow-browser.js` 原样复制到项目的 `tests/e2e/`，提交进仓库。它按 `DEVFLOW_BROWSER_PROVIDER` 打开本机无头、固定 CDP 地址或云浏览器（Steel、Kernel），云浏览器会自动创建和释放会话。不要在项目里改它；需要改的话改 skill 里的那份，再复制过去。
+
+## 连接和截图 `tests/e2e/fixtures.js`
 
 ```js
 const path = require('path');
-const { test: base, expect, chromium } = require('@playwright/test');
+const { test: base, expect } = require('@playwright/test');
+const { openBrowser } = require('./devflow-browser');
 
-// 有 CDP 地址就连远程浏览器，没有就在本机启动无头浏览器。
+// 每个测试进程开一个浏览器（本机 / CDP / 云浏览器），结束时断开并释放云端会话。
 // 每个测试仍然有自己独立的 context，互不影响。
 const test = base.extend({
   browser: [async ({}, use) => {
-    const cdp = process.env.DEVFLOW_BROWSER_CDP;
-    const browser = cdp
-      ? await chromium.connectOverCDP(cdp)
-      : await chromium.launch();
-    await use(browser);
-    await browser.close(); // 远程时只断开连接，不会关掉对方的浏览器
+    const { browser, close } = await openBrowser();
+    try { await use(browser); } finally { await close(); }
   }, { scope: 'worker' }],
 
   // 验收证据：设置了 DEVFLOW_EVIDENCE_DIR 时才保存截图（需求流程里由 dev-test 设置）
