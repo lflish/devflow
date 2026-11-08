@@ -2,7 +2,29 @@
 
 一套给 Claude Code 和 Codex 用的开发流程 skills。**人只做两类事：定方向、放行不可逆的动作。** 方案、验收、合并由机器验证放行，人看事后汇总。
 
+![devflow 流程总览：上面一行是你，下面一行是 AI](docs/images/flow-overview.png)
+
 ## 5 个阶段
+
+```mermaid
+flowchart LR
+    R["1 需求<br/>dev-requirements"] --> A{{"关口 A<br/>你：需求确认"}}
+    A --> D["2 设计<br/>dev-design"] --> B{{"机器关口 B<br/>方案验证"}}
+    B --> BU["3 开发<br/>dev-build"] --> T0{{"可提测<br/>机器判断"}}
+    T0 --> T["4 测试<br/>dev-test"] --> C{{"机器关口 C<br/>独立验证"}}
+    C -- "不通过：返工" --> BU
+    C --> RE["5 发布<br/>dev-release"] --> M{{"合并<br/>凭验证结论"}}
+    M --> P{{"上生产<br/>你：一次确认"}} --> DONE(["已发布"])
+
+    classDef human fill:#fffbeb,stroke:#b45309,color:#92400e
+    classDef machine fill:#f0fdf4,stroke:#15803d,color:#166534
+    classDef stage fill:#eff6ff,stroke:#2563eb,color:#1e293b
+    class A,P human
+    class B,T0,C,M machine
+    class R,D,BU,T,RE stage
+```
+
+橙色是你，绿色是机器关口（没写过代码的验证者在真实环境里验证，通过才放行），蓝色是 AI 执行的阶段。
 
 | 阶段 | skill | 结束于 |
 |------|-------|--------|
@@ -30,9 +52,15 @@
 
 ## 让 AI 等你，而不是你等 AI
 
-- **离开模式**：说“我要走了”“做完叫我”，AI 在仓库外的独立 worktree 里一直做到必须由你处理的点，再通知你（Claude Code 推送通知，或你配置的 webhook）。
+- **离开模式**：说“我要走了”“做完叫我”，AI 在独立的 worktree（`.devflow-tmp/worktrees/<短名>`，不进 git、不切换你主目录的分支）里一直做到必须由你处理的点，再通知你（Claude Code 推送通知，或你配置的飞书、企业微信、Slack、ntfy webhook）。
 - **别一轮轮试错**：看了才知道喜不喜欢的事（布局、风格、文案），一次出 2–4 个方案放进同一个对比页，你回 `M2` 一次选定；原因不明显的问题，先做验证脚本，再按“假设 → 实验 → 数据”决定。
 - **数据**：每个需求记 `metrics.md`（耗时、问你几次、等你多久、机器关口几轮、拦下几个问题、合并后又发现几个问题）。说“统计一下 devflow 的效果”生成统计页，用数据决定哪些规则值得留。
+
+## 一个需求走一遍
+
+以“给预览页加评论”为例（标准规模、L2）：你只回复 2 次，3 个机器关口替你验证，开发过程中不被打断。
+
+![一个需求走一遍：橙色是你，蓝色是 AI，绿色是机器关口](docs/images/flow-timeline.png)
 
 借鉴来源：gstack（需求评审、决定分类、汇总简报、真实浏览器 QA）、pstack（机器验证代替确认、项目验证 skill、问题要有运行证据、能跑出答案的不问人、汇总写法）、superpowers（先查后问、新人通读、执行中裁决不停等）、Spec Kit（缺口清单、带推荐的提问）、OpenSpec（需求加场景、验收核对、项目配置）。
 
