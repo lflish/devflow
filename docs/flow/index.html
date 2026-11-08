@@ -133,7 +133,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 
 <header>
   <h1>devflow 开发流程</h1>
-  <p class="muted">7 个 dev-* skills：5 个阶段各用哪个 skill、它做了什么、你在哪里参与、机器在哪里替你验证。点击任意阶段查看详情。版本 0.3.0 · 内容取自 <code>~/dev-skills-build</code></p>
+  <p class="muted">7 个 dev-* skills：5 个阶段各用哪个 skill、它做了什么、你在哪里参与、机器在哪里替你验证。点击任意阶段查看详情。版本 0.4.0 · 内容取自 <code>~/dev-skills-build</code></p>
   <div class="legend">
     <span><span class="chip c-human">你</span>只有人能做：定方向、上生产</span>
     <span><span class="chip c-ok">机器关口</span>独立验证通过就放行</span>
@@ -143,7 +143,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
   </div>
   <nav>
     <a href="#overview">流程总览</a><a href="#detail">阶段详情</a><a href="#levels">自主等级</a><a href="#timeline">一个需求走一遍</a>
-    <a href="#machine">机器验证</a><a href="#rules">共用规则</a><a href="#state">状态和续做</a><a href="#files">文件和配置</a><a href="#borrow">借鉴来源</a>
+    <a href="#away">让 AI 等你</a><a href="#data">用数据说话</a><a href="#machine">机器验证</a><a href="#rules">共用规则</a><a href="#state">状态和续做</a><a href="#files">文件和配置</a><a href="#borrow">借鉴来源</a>
   </nav>
 </header>
 
@@ -181,6 +181,38 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
   <div class="tl" id="tl"></div>
 </section>
 
+<section id="away">
+  <h2>让 AI 等你，而不是你等 AI</h2>
+  <p class="muted">说“我要走了”“做完叫我”，进入离开模式：AI 一直做到真正需要你的那一步，通知你，再停下。</p>
+  <div class="grid3">
+    <div class="card"><h4>做到哪一步才叫你</h4><ul>
+      <li>关口 A：确认需求</li><li>L1 的合并、上生产</li>
+      <li>某个只有你能定的事卡住了全部工作</li><li>需求走不通、对外动作失败</li><li>整个需求跑完</li></ul>
+      <p class="muted" style="font-size:12.5px">离开模式下，L1 的机器关口也不停，只更新汇总；回来后你可以改任何决定。</p></div>
+    <div class="card"><h4>怎么通知你</h4><ul>
+      <li>Claude Code 推送：终端弹窗，连了 Remote Control 也推到手机</li>
+      <li>webhook：飞书、企业微信、Slack、ntfy</li>
+      <li>只在有事要你处理时发；不在离开模式时，只有你超过 15 分钟没说话才发</li>
+      <li>通知里带汇总页链接，不带访问码</li></ul></div>
+    <div class="card"><h4>不打扰你手上的事</h4><ul>
+      <li>需求在 <code>.devflow-tmp/worktrees/&lt;短名&gt;</code> 里做，不切换你主目录的分支</li>
+      <li>一批需求可以并行，子 agent 只做到可提测，关口和通知由主会话处理</li>
+      <li>进入时先检查通知能不能发出去、会不会被权限确认卡住</li></ul></div>
+  </div>
+</section>
+
+<section id="data">
+  <h2>用数据说话：devflow 到底有没有用</h2>
+  <div class="grid3">
+    <div class="card"><h4>每个需求记一份 metrics.md</h4><ul>
+      <li>每个阶段的开始和结束</li><li>问了你几次、你多久回复</li><li>机器关口跑了几轮、验证者是谁</li>
+      <li>拦下几个问题、返工几次、做了几次实验</li><li>合并后又发现几个问题（修 bug 时用 git 查出是哪个需求引入的）</li></ul></div>
+    <div class="card"><h4>统计页</h4><p>说“统计一下 devflow 的效果”，汇总所有需求：耗时、打扰你的次数、等你的时间、机器关口轮次，以及最关键的一项：</p>
+      <p><b>合并后发现的问题 ÷ 验证拦下的问题</b>，越低说明机器验证越靠谱。</p></div>
+    <div class="card"><h4>为什么要记</h4><p>规则越加越多，不测就不知道哪些真有用。有了数据，才能删掉没用的规则，或者做“用 / 不用 devflow”的对照实验。</p></div>
+  </div>
+</section>
+
 <section id="machine">
   <h2>机器验证：怎样才算可信</h2>
   <div class="grid3">
@@ -205,7 +237,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 <section id="rules">
   <h2>共用规则（dev-workflow/references）</h2>
   <div class="grid3">
-    <div class="card"><h4>先问：能跑出答案吗</h4><p>“哪个方案好”“行不行”能用运行结果回答的，做一次性原型或探针跑一下，<b>不问人</b>。</p></div>
+    <div class="card"><h4>别一轮轮试错</h4><ul><li>“行不行”“哪个快”能跑出答案的，跑一下，<b>不问人</b></li><li>看了才知道喜不喜欢、选错返工大的：效果页里一次出 2–4 个方案，你回 <code>M2</code> 一次选定</li><li>原因不明显的问题：先做验证脚本留下“改之前”的数据，再“假设 → 实验 → 数据”</li></ul></div>
     <div class="card"><h4>决定分三类</h4><ul>
       <li><span class="chip c-auto">机械型</span> 直接定</li>
       <li><span class="chip c-agent">口味型 d</span> 按推荐做，进汇总，你可以改</li>
@@ -283,7 +315,7 @@ projects:
   </table></div>
 </section>
 
-<footer>devflow 0.3.0 · 页面源文件 dev-skills-build/docs/flow/index.html</footer>
+<footer>devflow 0.4.0 · 页面源文件 dev-skills-build/docs/flow/index.html</footer>
 </div>
 
 <script>
@@ -298,7 +330,7 @@ const STAGES=[
    ['一条评审消息','理解 + 前提 + 方案 + 范围 + 问题，全部带推荐；没有歧义时跳过。','h'],
    ['写 spec','“系统必须…”+ 场景；写明完成条件。',''],
    ['新人通读','没看过对话的子 agent 找必须靠猜的地方。','a'],
-   ['效果页','有界面或流程时生成可点的效果页。','p'],
+   ['效果页','有界面或流程时生成可点的效果页；选错返工大的口味类选择，一次出 2–4 个方案放进对比页，你回 M2 选定。','p'],
    ['关口 A','要做 / 不做、场景、假设、问题、效果页；L3 一批一次确认。','h']],
   refs:[['product-review.md','需求评审方法'],['gap-checklist.md','缺口清单'],['spec-template.md','spec 模板'],['builder-check-prompt.md','新人通读提示词']]},
  {id:'dev-design',n:2,t:'设计',sum:'选定做法，拆到不用再决定',icons:'am',
@@ -315,7 +347,7 @@ const STAGES=[
   trig:'机器关口 B 放行后自动进入。',reads:'tasks.md、design.md、decisions.md',
   out:'代码、提交、review.md',next:'可提测 → dev-test',
   steps:[['逐个任务','先写测试确认失败 → 实现 → 跑测试 → 提交 → 记进度。',''],
-   ['裁决不停等','歧义记 d；只有人能做的记 c 并只阻塞相关任务；范围外进“后续”。',''],
+   ['裁决不停等','歧义记 d；只有人能做的记 c 并只阻塞相关任务；范围外进“后续”；原因不明显的问题先做验证脚本，再按假设做实验。',''],
    ['全量测试','单元、集成、lint 全跑。',''],
    ['独立评审','调用 dev-review：问题要有运行证据，明确错误先写回归测试再修。','a'],
    ['可提测','任务完成或阻塞、测试全过、无未处理严重问题、无未提交改动 → 自动进入测试。','m']],
@@ -326,7 +358,7 @@ const STAGES=[
   steps:[['准备环境','按 e2e_env / verify_env 取地址，缺的问一次；连测试浏览器。','b'],
    ['项目验证 skill','没有就生成 verify-<项目名> 并跑通。',''],
    ['补齐测试','每个浏览器场景一个 Playwright 测试，截图留证。','b'],
-   ['探索式检查 + 修复','像人一样逐页点；先写回归测试再修。','b'],
+   ['探索式检查 + 修复','像人一样逐页点，同时看日志；先写回归测试再修，原因不明显时按“假设 → 实验 → 数据”找。','b'],
    ['验收核对','完整、正确、一致、干净。',''],
    ['部署到验证环境','共享环境用配置的 deploy 命令部署这个提交并确认 sha。',''],
    ['机器关口 C','验证者在真实环境独立验证；不通过 → 返工回开发。','abm']],
@@ -338,7 +370,7 @@ const STAGES=[
    ['检查结论还覆盖代码','比较代码指纹、看默认分支是否前移，不一致就复验。','a'],
    ['合并','前提：无阻塞任务、无未决 c；L1 先请你确认，L2/L3 直接合并。','m'],
    ['上生产确认','发布、部署、上线检查列成一份清单，一次确认；L3 整批一份。','h'],
-   ['执行和检查','交给项目自己的发布方式；production 只读检查。','b']],
+   ['执行和检查','交给项目自己的发布方式；production 只读检查，并看部署后的错误日志，出现新的 5xx 或崩溃就停下报告。','b']],
   refs:[['github-docker-example.md','CI/CD 示意（不能直接用）']]}
 ];
 const GATES=[{col:1,id:'dev-requirements',k:'评审消息',d:'理解、前提、方案、范围、问题',cls:'soft'},
