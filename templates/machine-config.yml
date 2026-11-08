@@ -7,6 +7,10 @@ browser:
   # ssh_host: ""                     # 可选：访问不到时，在这台机器上建反向隧道
 preview:
   vibeview: auto
+notify:                              # 不写时：有推送工具（Claude Code）就用，否则有 webhook 就用，否则不通知
+  # webhook_env: DEVFLOW_NOTIFY_WEBHOOK   # webhook 地址所在的环境变量
+  # payload: feishu                       # slack / feishu / wecom / ntfy / raw
+variants: 4                          # 口味类决定的多方案对比页最多几个方案
 verify:
   models: [codex, claude, same]      # 验证者候选，按顺序探测：同级别的其他模型优先（可写 codex:<模型>、claude:<模型>），最后 same
   probe_timeout: 60

@@ -1,6 +1,6 @@
 ---
 name: dev-workflow
-description: 软件开发全流程总纲（devflow）。用户问开发流程怎么走、想在项目里开始用 devflow 时使用；在使用 devflow 的项目里（有 .devflow.yml 或 docs/changes/），用户说“继续”“接着做”“continue”、回复关口或汇总（如 all、d2 B、c1 同意）、要调整自主等级（L1/L2/L3），或不确定当前处于哪个阶段时也使用。定义 5 个阶段（需求、设计、开发、测试、发布）、人工关口和机器关口、共用规则，并把工作交给对应的 dev-* skill。项目里有 docs/changes/ 或 .devflow.yml 时优先用它。
+description: 软件开发全流程总纲（devflow）。用户问开发流程怎么走、想在项目里开始用 devflow 时使用；在使用 devflow 的项目里（有 .devflow.yml 或 docs/changes/），用户说“继续”“接着做”“continue”、回复关口或汇总（如 all、d2 B、c1 同意）、要调整自主等级（L1/L2/L3）、说“我要离开”“做完叫我”、要“统计一下 devflow 的效果”，或不确定当前处于哪个阶段时也使用。定义 5 个阶段（需求、设计、开发、测试、发布）、人工关口和机器关口、共用规则，并把工作交给对应的 dev-* skill。项目里有 docs/changes/ 或 .devflow.yml 时优先用它。
 ---
 
 # dev-workflow：开发流程总纲
@@ -35,7 +35,7 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 | **L2 常规** | 关口 A；机器关口自动放行，只更新汇总；合并凭验证结论；上生产前确认 |
 | **L3 批量** | 一批互相独立的需求一次确认关口 A；之后自动跑到合并；上生产前确认一次 |
 
-所有等级都一样：[decisions.md](references/decisions.md) 里“只有人能做的事”只暂停那一项，其余照常推进；上生产、删数据、强推、对外发消息永远要用户确认。
+所有等级都一样：[decisions.md](references/decisions.md) 里“只有人能做的事”只暂停那一项，其余照常推进；上生产、删数据、强推、对外发消息永远要用户确认。离开模式下 L1 的机器关口 B、C 也不停，只更新汇总；L1 的合并仍要确认（away.md）。
 
 项目在 L1 下满足 gates.md 里的 4 个升级条件后，在下一次汇总里提示用户可以升到 L2；不要自己改等级。
 
@@ -50,8 +50,8 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 ## 每次开始时（所有阶段都先做这一节）
 
 1. **读配置**：项目根目录 `.devflow.yml`，以及本机 `~/.config/devflow/config.yml` 顶层和其中本项目（键为仓库根目录的绝对路径）的部分，见 [references/config.md](references/config.md)。没有项目配置时：在需求流程里，按 config.md 推断一份草稿，在关口 A 请用户确认；**独立模式下不生成草稿**，按推断的值直接用。
-2. **读共用规则**：[references/decisions.md](references/decisions.md) 每次都读。其余按需读：要问用户问题读 [questions.md](references/questions.md)；到了关口或要发汇总读 [gates.md](references/gates.md)；要做机器验证读 [verification.md](references/verification.md)；建文件、改状态读 [layout.md](references/layout.md)；生成页面读 [preview.md](references/preview.md)。
-3. **找到当前需求**：读 `<docs_dir>/README.md` 索引（默认 `docs/changes/`）。**未完成**指状态不是“已发布”“搁置”，也不是“已合并”且变更记录写了“不上生产”。用户提到的需求，或唯一一个未完成的需求，就是当前需求。同一批（L3）的多个需求按**默认分支**上的索引顺序（`git show <默认分支>:<docs_dir>/README.md`）取第一个未完成的。有多个互不相关的未完成需求、又看不出是哪个时，列出来请用户选（允许的例外之一）。
+2. **读共用规则**：[references/decisions.md](references/decisions.md) 和 [references/metrics.md](references/metrics.md) 每次都读。其余按需读：要问用户问题读 [questions.md](references/questions.md)；到了关口或要发汇总读 [gates.md](references/gates.md)；要做机器验证读 [verification.md](references/verification.md)；建文件、改状态读 [layout.md](references/layout.md)；生成页面读 [preview.md](references/preview.md)；离开模式、worktree、通知读 [away.md](references/away.md)。
+3. **找到当前需求**：读 `<docs_dir>/README.md` 索引（默认 `docs/changes/`）；再用 `git worktree list` 看主仓库根下 `.devflow-tmp/worktrees/` 里有没有 devflow 的 worktree，有就也读它们分支上的索引（离开模式和批量需求在那里做，见 away.md）。**未完成**指状态不是“已发布”“搁置”，也不是“已合并”且变更记录写了“不上生产”。用户提到的需求，或唯一一个未完成的需求，就是当前需求。同一批（L3）的多个需求按**默认分支**上的索引顺序（`git show <默认分支>:<docs_dir>/README.md`）取第一个未完成的。有多个互不相关的未完成需求、又看不出是哪个时，列出来请用户选（允许的例外之一）。
 4. **判断从哪里接着做**：按下一节。
 
 ## 判断从哪里接着做
@@ -67,6 +67,12 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 | 没有需求文件夹（新想法） | dev-requirements |
 
 换了会话或上下文被压缩后也按这张表续上，再看 `decisions.md` 最后几行和 `tasks.md` 的进度，不要从头再来。
+
+## 离开模式和数据
+
+- 用户说“我要走了”“去睡了”“做完叫我”“跑到下一个关口”时，进入**离开模式**（away.md）：在独立的 worktree 里一直做到必须由用户处理的点，通知用户，再停下。
+- 每个需求都在 `metrics.md` 里记数据（metrics.md）：阶段起止、问用户、用户回复、机器关口、拦下的问题、返工、实验、合并后发现的问题。
+- 用户说“统计一下 devflow 的效果”“看看数据”时，按 metrics.md 汇总所有需求，生成统计页。
 
 ## 规模
 
@@ -92,3 +98,4 @@ dev-requirements 开始时判断一次，写进状态行。
 4. **说“通过”要有证据。** 附上实际运行的命令和输出，不能说“应该能过”。机器关口只认验证结论（verification.md）。
 5. **不靠放松检查来过关。** 不删测试、不跳过测试、不放宽断言、不调大超时、不加忽略规则。确实需要时，交给用户决定。
 6. **不扩大范围。** spec 之外的改进记进 `tasks.md` 末尾的“后续”，不擅自做。
+7. **别一轮轮试错。** 口味类的事一次给出多个方案让用户一次选；原因不明显的问题先做验证工具，再按“假设 → 实验 → 数据”决定（decisions.md 第一节）。

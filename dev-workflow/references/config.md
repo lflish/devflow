@@ -72,6 +72,10 @@ browser:
   # ssh_host: browser-box            # 可选：访问不到时，在这台机器上建反向隧道
 preview:
   vibeview: auto                     # auto：装了 dview 且配置了 DVIEW_URL 就用；off：不用
+notify:                              # 见 away.md；不写时：有推送工具就用，否则有 webhook 就用，否则不通知
+  webhook_env: DEVFLOW_NOTIFY_WEBHOOK   # webhook 地址所在的环境变量
+  payload: feishu                    # slack / feishu / wecom / ntfy / raw
+variants: 4                          # 多方案对比页最多几个方案
 verify:
   models: [codex, claude, same]      # 验证者候选，按顺序探测；可写 codex:<模型>、claude:<模型> 指定同级别模型（见 verification.md）
   probe_timeout: 60                  # 探测限时（秒）
@@ -89,7 +93,7 @@ projects:
 
 ## 读取规则
 
-1. 读本机配置顶层，以及 `projects` 下键等于当前仓库根目录（`git rev-parse --show-toplevel`）的那一节。
+1. 读本机配置顶层，以及 `projects` 下键等于**主仓库根**的那一节。主仓库根 = `dirname "$(git rev-parse --path-format=absolute --git-common-dir)"`（在 worktree 里也指向主仓库；不要用 `--show-toplevel`）。
 2. `commands` 里没写的，按项目文件推断：`package.json` 的 scripts、`Makefile`、`pyproject.toml`、`go.mod`、`Cargo.toml`、已有 CI 里的命令。推断出的命令记一行到 `decisions.md`（机械型）。
 3. **环境地址**：按顺序取第一个有值的：
    1. 环境变量（`url_env` 指的那个）；
