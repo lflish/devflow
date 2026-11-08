@@ -35,6 +35,13 @@ test:
   verify_env: local            # 有 staging 时改成 staging
   cloud_browser: allowed       # 页面和截图会经过云浏览器服务商；数据敏感的项目改成 forbidden
 
+human_decisions: []            # 只有人能定的事，例：[产品名和对外文案, 价格和套餐, 用户协议和隐私条款]
+safety_valves: []              # 会对外产生影响的开关，默认关闭，例：[NOTIFY_ENABLED, PAYMENT_ENABLED]
+invariants: []                 # 不变的规则和检查命令，例：
+  # - rule: 前端只通过 HTTP 读后端，不直接读数据库
+  #   check: npm run test -- tests/architecture.test.ts
+upgrade_doc: ""                # 已部署环境升级时要做的事写在哪，例：docs/deploy.md
+
 rules:
   requirements: []
   design: []

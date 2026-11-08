@@ -46,6 +46,21 @@ test:
   verify_env: staging           # 机器关口 C 独立验证的环境；用户说过没有这个环境（url: none）时用 e2e_env
   cloud_browser: allowed        # allowed / forbidden：页面和截图会经过云浏览器服务商，数据敏感的项目写 forbidden
 
+human_decisions:                # 这个项目里必须由你定的事（AI 遇到一律交给你，不替你决定）
+  - 产品名、品牌和对外文案的口吻
+  - 价格、套餐和收费规则
+  - 条款、隐私说明
+
+safety_valves:                  # 会产生外部影响的开关（发消息、扣费、推送、真实采集）的环境变量
+  - NOTIFY_ENABLED              # 只有明确设成 true 才打开；开发和测试时保持关闭
+  - PAYMENT_ENABLED
+
+invariants:                     # 这个项目不能被打破的规则，每条配一个自动检查
+  - rule: 前端只通过 HTTP 读后端，不直接访问数据库
+    check: npm run test -- tests/architecture.test.ts
+
+upgrade_doc: docs/deploy.md     # 已部署的环境升级时要做的事写在哪；没有就写进 PR 说明
+
 rules:                          # 只对某个阶段生效的额外规则
   requirements: []
   design: []
@@ -76,6 +91,11 @@ notify:                              # 见 away.md；不写时：有推送工具
   webhook_env: DEVFLOW_NOTIFY_WEBHOOK   # webhook 地址所在的环境变量
   payload: feishu                    # slack / feishu / wecom / ntfy / raw
 variants: 4                          # 多方案对比页最多几个方案
+budget:                              # devflow 自己花的钱的上限，超了就停下告诉你
+  verify_rounds_per_change: 6        # 一个需求最多派几轮验证者（B、C、复验合计）
+  external_model_calls_per_change: 20  # 一个需求最多调用几次其他模型（codex / claude）
+  cloud_browser_minutes_per_day: 60  # 云浏览器每天最多用多少分钟
+  experiment_model_calls: 30         # 一次实验最多调用几次模型
 verify:
   models: [codex, claude, same]      # 验证者候选，按顺序探测；可写 codex:<模型>、claude:<模型> 指定同级别模型（见 verification.md）
   probe_timeout: 60                  # 探测限时（秒）
