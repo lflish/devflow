@@ -133,7 +133,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 
 <header>
   <h1>devflow 开发流程</h1>
-  <p class="muted">7 个 dev-* skills：5 个阶段各用哪个 skill、它做了什么、你在哪里参与、机器在哪里替你验证。点击任意阶段查看详情。版本 0.4.0 · 内容取自 <code>~/dev-skills-build</code></p>
+  <p class="muted">7 个 dev-* skills：5 个阶段各用哪个 skill、它做了什么、你在哪里参与、机器在哪里替你验证。点击任意阶段查看详情。版本 0.5.2 · 内容取自 <code>~/dev-skills-build</code></p>
   <div class="legend">
     <span><span class="chip c-human">你</span>只有人能做：定方向、上生产</span>
     <span><span class="chip c-ok">机器关口</span>独立验证通过就放行</span>
@@ -245,7 +245,13 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
     <div class="card"><h4>只有人能做的事</h4><ul>
       <li>定方向、改你定下的需求</li><li>实验定不了的产品偏好</li>
       <li>迁移已有数据、破坏对外兼容、新基础设施或付费依赖</li>
-      <li>放松检查</li><li>上生产、删数据、强推、对外发消息、安全敏感</li></ul></div>
+      <li>放松检查</li><li>上生产、删数据、强推、对外发消息、安全敏感</li>
+      <li>项目列出的 <code>human_decisions</code>；改 AGENTS.md、CLAUDE.md 和 skill 这类约束 AI 的文件；超出花费上限</li></ul></div>
+  </div>
+  <div class="grid3" style="margin-top:14px">
+    <div class="card"><h4>护栏（.devflow.yml）</h4><ul><li><code>human_decisions</code>：只有你能定的事，写具体、写窄</li><li><code>safety_valves</code>：发消息、扣费这类开关默认关闭，测试和 CI 里也关</li><li><code>invariants</code>：不变的规则，每条配一个检查命令，测试和验证都跑</li></ul></div>
+    <div class="card"><h4>改全、守行为</h4><ul><li>新环境变量进示例配置，升级步骤写进 <code>upgrade_doc</code>；没配先写进 design.md“变更”，发布时搬进 PR</li><li>停用的功能删干净；删表删字段要你确认</li><li>测试断言用户看得到的行为，不钉死内部写法</li></ul></div>
+    <div class="card"><h4>花费和发布</h4><ul><li>本机 <code>budget</code> 限制验证轮次、外部模型调用、云浏览器时长</li><li>PR 正文三段：解决什么、怎么验证（没跑的写原因）、兼容影响</li><li>默认分支被改写：搬到新分支开新 PR，不强推</li></ul></div>
   </div>
   <div class="grid3" style="margin-top:12px">
     <div class="card"><h4>决策原则（按顺序）</h4><ol>
@@ -315,7 +321,7 @@ projects:
   </table></div>
 </section>
 
-<footer>devflow 0.4.0 · 页面源文件 dev-skills-build/docs/flow/index.html</footer>
+<footer>devflow 0.5.2 · 页面源文件 dev-skills-build/docs/flow/index.html</footer>
 </div>
 
 <script>

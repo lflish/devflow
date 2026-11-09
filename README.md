@@ -114,7 +114,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1          # status / unins
 
 不用预先做什么。第一次在项目里提需求时，AI 会读项目生成 `.devflow.yml` 草稿（命令、有哪些环境和数据规则、自主等级），在关口 A 请你确认。模板见 `templates/devflow.yml`。项目文件里地址只写变量名，不写 IP、主机名、密钥。
 
-需求文件放在 `docs/changes/<日期>-<短名>/`：`spec.md`、`design.md`、`tasks.md`、`decisions.md`、`review.md`、`test-report.md`、`verdict.md`、`evidence/`、`pages/`。spec 标题下的状态行记录“状态 / 阶段 / 待关口 / 等级”，换了会话也能从断点接着做。
+需求文件放在 `docs/changes/<日期>-<短名>/`：`spec.md`、`design.md`、`tasks.md`、`decisions.md`、`metrics.md`、`review.md`、`test-report.md`、`verdict.md`、`evidence/`、`pages/`。spec 标题下的状态行记录“状态 / 阶段 / 待关口 / 等级”，换了会话也能从断点接着做。
 
 ## 用法
 

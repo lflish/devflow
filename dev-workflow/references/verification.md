@@ -18,7 +18,7 @@
 只算代码，不算需求文件夹和 `.dview.json`：
 
 ```bash
-BASE=$(git merge-base <默认分支> <sha>)
+BASE=$(git merge-base origin/<默认分支> <sha>)   # 没有远程仓库时用本地默认分支
 git diff "$BASE" <sha> -- . ':(exclude)<docs_dir>' ':(exclude).dview.json' | git patch-id --stable | cut -d' ' -f1
 ```
 
@@ -49,6 +49,8 @@ git diff --stat <旧 BASE> <新 BASE> -- . ':(exclude)<docs_dir>' ':(exclude).dv
 “同级别”由用户在 `verify.models` 里指定的模型保证（例如 `codex:gpt-5.4-pro`）；不写模型就用那个工具自己的默认配置。
 
 ## 怎么调用
+
+派验证者或调用其他模型**之前**，对照本机配置的 `budget`（decisions.md“超出花费上限”）；派完在 metrics.md 记一行“用量”。按天的上限（云浏览器分钟数）跨需求、跨项目累加，记在本机的用量账 `~/.config/devflow/usage/<日期>.log`：用之前读当天合计，用完追加一行（时间、项目、需求、用量）。“一次实验”指 decisions.md 第一节第 3 条里的一个实验，它调用模型的次数对照 `experiment_model_calls`。
 
 外部模型的验证者在**独立的 worktree** 里工作，不碰开发用的目录：
 

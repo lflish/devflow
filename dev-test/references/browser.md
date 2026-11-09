@@ -8,7 +8,9 @@
 | **固定 CDP 地址** | `cdp`（设置了 `DEVFLOW_BROWSER_CDP` 时默认是它） | 另一台自己的机器（小主机、Mac）开着带调试端口的 Chrome，通过隧道连过来 | 那台机器能访问的地址：局域网、Tailscale、公网 |
 | **云浏览器** | `steel` / `kernel` | 没有自己的浏览器机器，或要并行开很多个 | **只能打开公网地址** |
 
-都通过项目 `tests/e2e/` 下的 `devflow-browser.js` 打开（从 [devflow-browser.js](devflow-browser.js) 复制过去），测试代码和检查脚本共用，用法见 e2e-example.md。
+默认都通过项目 `tests/e2e/` 下的 `devflow-browser.js` 打开（从 [devflow-browser.js](devflow-browser.js) 复制过去），测试代码和检查脚本共用，用法见 e2e-example.md。
+
+项目已经有自己的浏览器测试写法（比如 `scripts/*.js --browser` 直接调 Playwright）时跟随项目，下面的连通检查和临时脚本改用项目自己的入口。项目的写法要能连到这里选定的浏览器：读 `DEVFLOW_BROWSER_CDP`（或项目自己的同类变量）和被测地址；做不到的，只能用本机无头浏览器，在 decisions.md 记一行 `d<n>`，并告诉验证者怎么连。
 
 设置来自本机配置 `browser`（见 dev-workflow 的 config.md），运行测试时转成环境变量：
 
@@ -84,7 +86,7 @@ DEVFLOW_EVIDENCE_DIR=<需求文件夹>/evidence \
 
 ## 探索式检查用的 Playwright MCP
 
-只用连在测试浏览器上的 Playwright MCP（`mcp__playwright__*`），或 `.devflow-tmp/` 里的临时 Playwright 脚本（`require('../tests/e2e/devflow-browser')` 打开浏览器）。
+只用连在测试浏览器上的 Playwright MCP（`mcp__playwright__*`），或 `.devflow-tmp/` 里的临时 Playwright 脚本（`require('../tests/e2e/devflow-browser')` 打开浏览器；项目用自己的写法时，按项目的方式打开）。
 
 人一次性配置好后，各项目都能用（只适用于固定 CDP 地址；云浏览器每次地址不同，用临时脚本）：
 ```bash

@@ -28,7 +28,7 @@
 
 ### T1 <标题>
 - 状态：待办
-- 文件：新建 `src/comments/store.js`；修改 `src/db.js:40-60`；测试 `test/comments-store.test.js`
+- 文件：新建 `src/comments/store.js`；修改 `src/db.js:40-60`；测试 `test/comments-store.test.js`（优先放进这个功能已有的测试文件；改全要动的示例配置、文档也列在这里）
 - 接口：
   - 使用：`db.prepare(sql)`（现有）
   - 提供：`createComment({ itemId, version, author, text }) → { id, createdAt }`

@@ -102,6 +102,6 @@ spec.md 标题下第一行：
 
 ## git
 
-- **dev-requirements 建文件夹时**，如果当前在默认分支（main/master）上，新建本地分支 `change/<短名>` 并切过去。建本地分支、本地提交、建 worktree 都不需要确认。
+- **dev-requirements 建文件夹时**，不管当前在哪个分支，都从默认分支新开本地分支 `change/<短名>`（见 dev-requirements 第 1 步）。发布时因默认分支被改写换成 `change/<短名>-2` 的，以 spec 变更记录里登记的分支为准。建本地分支、本地提交、建 worktree 都不需要确认。
 - **每个阶段结束时**，提交本阶段的产物（文档、代码、`.dview.json`），提交信息写明阶段，比如 `docs(review-comments): spec and prototype`。
 - 推送、开 PR、合并、上生产都在发布阶段处理（dev-release）。

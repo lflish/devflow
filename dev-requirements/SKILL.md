@@ -16,7 +16,7 @@ description: 需求讨论、需求评审与需求文档（devflow 第 1 阶段�
 ## 1. 定规模，建文件夹
 
 1. 先判断规模（微小 / 小 / 标准，见 dev-workflow）。**是在修 bug 时**（包括微小的），先用 `git log` / `git blame` 查是哪个 devflow 需求引入的，查到就按 metrics.md 在那个需求里记一行“合并后发现问题”。**微小**：不走本流程，直接改、跑测试、在回复里说明，结束。
-2. 从默认分支新开本地分支：`git switch -c change/<短名> <默认分支>`（不管当前在哪个分支；一批需求时每个需求都这样开，做下一个之前先切回默认分支）。当前有未提交的改动时，用 `git stash push -u -m "devflow: <短名> 之前的改动"` 收起来，并在第一次汇总里告诉用户（**不要**替用户提交这些改动）。离开模式、一批需求（L3）、或用户还在这个仓库里干别的时，改为在仓库外建 worktree（`../dev-workflow/references/away.md`），不切换用户当前的目录，也就不用收起他的改动。
+2. 从默认分支新开本地分支：`git switch -c change/<短名> <默认分支>`（不管当前在哪个分支；一批需求时每个需求都这样开，做下一个之前先切回默认分支）。当前有未提交的改动时，用 `git stash push -u -m "devflow: <短名> 之前的改动"` 收起来，并在第一次汇总里告诉用户（**不要**替用户提交这些改动）。离开模式、一批需求（L3）、或用户还在这个仓库里干别的时，改为在 `.devflow-tmp/worktrees/<短名>` 建 worktree（`../dev-workflow/references/away.md`），不切换用户当前的目录，也就不用收起他的改动。
 3. 按 layout.md 建 `<docs_dir>/<日期>-<短名>/`，按 [references/spec-template.md](references/spec-template.md) 写 spec 骨架，状态行：`状态：草案　阶段：dev-requirements　待关口：—　等级：<自主等级>　规模：<小/标准>`；建 `decisions.md`（文件头见 layout.md）和 `metrics.md`（见 `../dev-workflow/references/metrics.md`，第一行记“阶段开始”）；在索引里加一行。
 4. **一批需求（L3，或用户一次给了几个互相独立的需求）**：先在默认分支的索引 `<docs_dir>/README.md` 里登记这一批（每个需求一行，按处理顺序，状态“草案”），提交这一次只改索引的更新；然后每个需求各开分支、各建文件夹，按下面的步骤逐个做到第 7 步，最后合成**一份**关口 A。各分支只改索引里自己那一行，合并有冲突时以默认分支的为准再改自己那行。
 

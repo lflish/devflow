@@ -12,7 +12,7 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 1. 先读 `../dev-workflow/SKILL.md` 的“每次开始时”，照做其中第 1–3 步（包括读 `../dev-workflow/references/decisions.md`、`verification.md`、`config.md`）。本阶段还要读同目录下的 `gates.md`、`preview.md`。
 2. 状态行“阶段”改为 `dev-test`；状态应为“测试中”。
 3. **独立模式**：找不到需求文件夹时（用户只是说“跑一下测试”），只运行或补写用户指的测试，结果直接告诉用户；不写报告、不做机器关口、不交接。
-4. **记数据**（metrics.md）：阶段开始、结束；探索式检查和独立验证拦下的问题记“验证拦下问题”；机器关口 C 的每轮结论（第几轮、验证者）；验证不通过时记“返工”。
+4. **记数据**（metrics.md）：阶段开始、结束；每次派验证者、用云浏览器后记“用量”；探索式检查和独立验证拦下的问题记“验证拦下问题”；机器关口 C 的每轮结论（第几轮、验证者）；验证不通过时记“返工”。
 
 **接着做**：看 test-report.md 和 verdict.md 到了哪一步，从没完成的步骤继续。**返工回来时**（tasks.md 里有刚完成的“返工”任务）：第 1、2 步已经做过，从第 3 步补齐返工相关的测试开始，然后第 5–8 步；第 8 步按 verification.md 规则 4 决定派一个验证者还是全套。
 
@@ -20,7 +20,7 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 1. 按 config.md 的读取规则取 `test.e2e_env` 和 `test.verify_env` 的地址（测试浏览器用的地址按规则 4 换主机）。缺地址的：一次性问用户，写进本机配置（config.md“缺地址时”）。
 2. 读这两个环境的 `data` 规则，整个阶段都按它来（共享环境只动测试数据，production 只读）。本地跑测试和服务时，`.devflow.yml` 的 `safety_valves` 一律保持关闭，测试不访问真实的外部服务和付费服务。
-3. 按 [references/browser.md](references/browser.md) 选这次用哪种测试浏览器（本机无头 / 固定 CDP / 云浏览器；云浏览器只能测公网地址），把 `devflow-browser.js` 复制到项目的 `tests/e2e/`（已有就跳过；项目已经有自己的浏览器测试写法，比如 `scripts/*.js --browser` 直接调 Playwright，就跟随项目，不复制、不另起一套），检查能连上、能打开被测地址；local 环境需要时先用 `environments.local.start` 启动服务。
+3. 按 [references/browser.md](references/browser.md) 选这次用哪种测试浏览器（本机无头 / 固定 CDP / 云浏览器；云浏览器只能测公网地址，用之前按 verification.md 读当天的用量账，对照 `budget`），把 `devflow-browser.js` 复制到项目的 `tests/e2e/`（已有就跳过；项目已经有自己的浏览器测试写法，比如 `scripts/*.js --browser` 直接调 Playwright，就跟随项目，不复制、不另起一套），检查能连上、能打开被测地址；local 环境需要时先用 `environments.local.start` 启动服务。
 
 ## 2. 项目验证 skill
 
@@ -37,7 +37,7 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 ## 4. 探索式检查
 
-按 verify skill 和 [references/explore-checklist.md](references/explore-checklist.md)，把本需求涉及的页面像用户一样实际用一遍，问题编号 `X1`、`X2`…，记录严重程度、复现步骤、截图。只用测试浏览器（browser.md 的“只用测试浏览器”）。
+按 verify skill 和 [references/explore-checklist.md](references/explore-checklist.md)，把本需求涉及的页面像用户一样实际用一遍，问题编号 `X1`、`X2`…，记录严重程度、复现步骤、截图。只用测试浏览器（browser.md 的“探索式检查用的 Playwright MCP”）。
 
 ## 5. 修复
 
@@ -64,7 +64,7 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 | 正确 | 测试全过；spec 里的具体数值、文案、权限在代码里一致；完成条件成立 |
 | 一致 | 设计里的决定在代码里都能看到；偏差都记在 design.md 的“变更”和 decisions.md 里 |
 | 干净 | 没有未提交的改动；没有调试代码、注释掉的大段代码；`.devflow-tmp/` 不在仓库里 |
-| 改全 | 新环境变量进了示例配置；升级要做的事写进了 `upgrade_doc`；停用的功能删干净了；`invariants` 的检查全部通过 |
+| 改全 | 新环境变量进了示例配置；升级要做的事写进了 `upgrade_doc`（没配就看 design.md“变更”里的“升级步骤”，小规模看 tasks.md“技术方案”里的）；停用的功能删干净了；`invariants` 的检查全部通过 |
 
 ## 8. 机器关口 C：独立验证
 
@@ -73,6 +73,7 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 - **通过 / 通过，有备注**：按 gates.md 更新汇总（等你的事在最前，然后是场景、截图、验证者和提交），汇总页源文件在 `pages/summary/`。
   - **L1**：状态和阶段先不改；汇总末尾请用户回复，状态行写 `待关口：C`，提交，这一轮结束。回复后按 gates.md 的表处理（状态“已验证”、阶段 `dev-release`）。
+    例外：这一轮是返工复验，而返工任务的来源写着“关口 C 已放行，先改 …”（gates.md“通过，但先改一下”）时，复验通过就不再问，直接按已给的放行改为“已验证”、进入 dev-release，汇总里说明。
   - **L2 / L3**：状态改为“已验证”，阶段改为 `dev-release`，提交，然后读 `../dev-release/SKILL.md` 并执行。
 - **不通过**：每个拦下的问题在 tasks.md 加一个“返工”任务（来源写 `X<n>`），状态改回“开发中”，阶段改为 `dev-build`，读 `../dev-build/SKILL.md` 并执行；修完会依次回到这里，按 verification.md 规则 4 重新验证。同一个问题 3 轮不过，记 `c<n>` 交给用户。
 
