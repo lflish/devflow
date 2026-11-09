@@ -47,9 +47,11 @@ test:
   cloud_browser: allowed        # allowed / forbidden：页面和截图会经过云浏览器服务商，数据敏感的项目写 forbidden
 
 human_decisions:                # 这个项目里必须由你定的事（AI 遇到一律交给你，不替你决定）
-  - 产品名、品牌和对外文案的口吻
+  - 产品名、品牌，首页和宣传页上的文案口吻
   - 价格、套餐和收费规则
   - 条款、隐私说明
+  # 写具体、写窄：用户指南、API 文档、README 里的用法说明要跟着功能一起改（改全），不要列进来，
+  # 否则每个需求都会为文档多停一次。AI 推断草稿时只放能从项目里看出来的真正敏感的事，拿不准就留空。
 
 safety_valves:                  # 会产生外部影响的开关（发消息、扣费、推送、真实采集）的环境变量
   - NOTIFY_ENABLED              # 只有明确设成 true 才打开；开发和测试时保持关闭
@@ -73,7 +75,7 @@ release:
   # {version} 是不带前缀的版本号（1.4.5），{tag} 是标签（v1.4.5）
   publish: "使用 $release 发布 {version}"
   production: "使用 $deploy-view 部署 {tag}"
-  post_check: "打开线上首页，确认版本号是 {version}"
+  post_check: "读部署记录确认运行的是 {version}；打开首页截图"   # 写项目真实有的检查：页面上不显示版本号的项目不要写“看首页版本号”
 ```
 
 ## 本机配置 `~/.config/devflow/config.yml`

@@ -20,7 +20,7 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 1. 按 config.md 的读取规则取 `test.e2e_env` 和 `test.verify_env` 的地址（测试浏览器用的地址按规则 4 换主机）。缺地址的：一次性问用户，写进本机配置（config.md“缺地址时”）。
 2. 读这两个环境的 `data` 规则，整个阶段都按它来（共享环境只动测试数据，production 只读）。本地跑测试和服务时，`.devflow.yml` 的 `safety_valves` 一律保持关闭，测试不访问真实的外部服务和付费服务。
-3. 按 [references/browser.md](references/browser.md) 选这次用哪种测试浏览器（本机无头 / 固定 CDP / 云浏览器；云浏览器只能测公网地址），把 `devflow-browser.js` 复制到项目的 `tests/e2e/`（已有就跳过），检查能连上、能打开被测地址；local 环境需要时先用 `environments.local.start` 启动服务。
+3. 按 [references/browser.md](references/browser.md) 选这次用哪种测试浏览器（本机无头 / 固定 CDP / 云浏览器；云浏览器只能测公网地址），把 `devflow-browser.js` 复制到项目的 `tests/e2e/`（已有就跳过；项目已经有自己的浏览器测试写法，比如 `scripts/*.js --browser` 直接调 Playwright，就跟随项目，不复制、不另起一套），检查能连上、能打开被测地址；local 环境需要时先用 `environments.local.start` 启动服务。
 
 ## 2. 项目验证 skill
 
