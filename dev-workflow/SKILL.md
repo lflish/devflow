@@ -51,7 +51,9 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 
 1. **读配置**：项目根目录 `.devflow.yml`，以及本机 `~/.config/devflow/config.yml` 顶层和其中本项目（键为仓库根目录的绝对路径）的部分，见 [references/config.md](references/config.md)。没有项目配置时：在需求流程里，按 config.md 推断一份草稿，在关口 A 请用户确认；**独立模式下不生成草稿**，按推断的值直接用。
 2. **读共用规则**：[references/decisions.md](references/decisions.md) 和 [references/metrics.md](references/metrics.md) 每次都读。其余按需读：要问用户问题读 [questions.md](references/questions.md)；到了关口或要发汇总读 [gates.md](references/gates.md)；要做机器验证读 [verification.md](references/verification.md)；建文件、改状态读 [layout.md](references/layout.md)；生成页面读 [preview.md](references/preview.md)；离开模式、worktree、通知读 [away.md](references/away.md)。
-3. **找到当前需求**：读 `<docs_dir>/README.md` 索引（默认 `docs/changes/`）；再用 `git worktree list` 看主仓库根下 `.devflow-tmp/worktrees/` 里有没有 devflow 的 worktree，有就也读它们分支上的索引（离开模式和批量需求在那里做，见 away.md）。**未完成**指状态不是“已发布”“搁置”，也不是“已合并”且变更记录写了“不上生产”。用户提到的需求，或唯一一个未完成的需求，就是当前需求。同一批（L3）的多个需求按**默认分支**上的索引顺序（`git show <默认分支>:<docs_dir>/README.md`）取第一个未完成的。有多个互不相关的未完成需求、又看不出是哪个时，列出来请用户选（允许的例外之一）。
+3. **找到当前需求**：读 `<docs_dir>/README.md` 索引（默认 `docs/changes/`）；再用 `git worktree list` 看主仓库根下 `.devflow-tmp/worktrees/` 里有没有 devflow 的 worktree，有就也读它们分支上的索引（离开模式和批量需求在那里做，见 away.md）。
+   - 用 `git for-each-ref --format='%(refname:short)' refs/heads/devflow-writeback/` 找出本地写回分支，读取相关分支的 spec 和批次索引，对照目标默认分支。用默认分支缺少的最新记录恢复进度，确认实际 PR 合并、发布或部署结果后再决定下一步。已结束的需求只按写回规则处理未写入的记录。
+   - 用户提到的需求，或唯一一个未完成的需求，就是当前需求。“已发布”“搁置”，以及状态“已验证”或“已合并”且写了“不上生产”的需求均已结束。同一批（L3）按默认分支索引顺序取第一个未完成的；批次索引待写回时，从 spec 记录的本地登记分支读取顺序。有多个互不相关的未完成需求、又看不出是哪个时，列出来请用户选。
 4. **判断从哪里接着做**：按下一节。
 
 ## 判断从哪里接着做
@@ -63,7 +65,7 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 | “待关口”有值 | 用户这条消息如果是对它的回复，按 gates.md 解析并处理；“继续”“接着做”**不算**回复，把这个关口的简报重发一遍，等回复。`c<n>` 只暂停一项时不写“待关口”，不影响这里 |
 | 有“阶段”值 | 读那个阶段的 SKILL.md，从它的“接着做”处继续 |
 | 状态“已合并”，没写“不上生产”，release 配了发布或部署 | dev-release 第 4 步（上生产确认） |
-| 状态“已发布”“搁置”，或“已合并”且不再上生产 | 这个需求已结束；有别的未完成需求就换它，没有就告诉用户没有进行中的需求 |
+| 状态“已发布”“搁置”，或“已验证”／“已合并”且不再上生产 | 这个需求已结束；有别的未完成需求就换它，没有就告诉用户没有进行中的需求 |
 | 没有需求文件夹（新想法） | dev-requirements |
 
 换了会话或上下文被压缩后也按这张表续上，再看 `decisions.md` 最后几行和 `tasks.md` 的进度，不要从头再来。

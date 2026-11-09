@@ -149,7 +149,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 
 <section id="overview">
   <h2>流程总览</h2>
-  <p class="muted">上面一行是你，下面一行是 AI。人只做两类事：<b>定方向</b>（关口 A）和<b>放行不可逆的动作</b>（上生产）。其余关口由机器验证放行，你看事后汇总。</p>
+  <p class="muted">上面一行是你，下面一行是 AI。你负责<b>定方向</b>（关口 A）和<b>确认生产动作</b>。方案和验收由机器验证，自动合并还要求平台保护已验证的合并结果。</p>
   <div class="lanes" id="lanes"></div>
 </section>
 
@@ -163,8 +163,8 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
   <div class="tbl"><table>
     <tr><th>等级</th><th>适用</th><th>你参与的点</th></tr>
     <tr><td><b>L1 跟着看</b>（新项目默认）</td><td>刚开始用、新项目、高风险改动</td><td>关口 A；机器关口 B、C 通过后看一眼；合并前确认；上生产前确认</td></tr>
-    <tr><td><b>L2 常规</b></td><td>信任建立后的日常需求</td><td>关口 A；机器关口自动放行，你看汇总；合并凭验证结论；上生产前确认</td></tr>
-    <tr><td><b>L3 批量</b></td><td>一批互相独立的小需求</td><td>一批需求一次确认关口 A；自动跑到合并；整批一份上生产清单</td></tr>
+    <tr><td><b>L2 常规</b></td><td>信任建立后的日常需求</td><td>关口 A；机器关口自动放行，你看汇总；平台能保护已验证的合并结果时自动合并；上生产按范围确认</td></tr>
+    <tr><td><b>L3 批量</b></td><td>一批互相独立的小需求</td><td>一批需求一次确认关口 A；平台能保护已验证的合并结果时自动合并；整批生产动作可合并成一份清单</td></tr>
   </table></div>
   <p class="muted" style="margin-top:8px">所有等级都一样：难以回头的决定、改你定下的需求、放松检查 → 只暂停那一项；上生产、删数据、强推、对外发消息 → 永远要你确认。L1 升 L2 要满足 4 个条件：跑过 2–3 个需求、项目验证 skill 跑通、机器验证拦下过真问题、反复的错误已变成自动检查。</p>
 </section>
@@ -220,7 +220,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
       <li>验证者没写过这段代码</li>
       <li>在真实环境里跑：测试 + 测试浏览器走每个场景</li>
       <li>已确认的问题附运行证据；有依据但缺条件的反例交给测试</li>
-      <li>结论绑定代码指纹，代码变了就复验（只改文档不复验）</li>
+      <li>结论绑定候选和目标分支 tip 的完整代码树快照。任一代码树变化就复验，只有纯流程产物更新可沿用结论</li>
       <li>只拦用户会遇到的问题</li>
       <li>放松检查一律交给你</li></ol></div>
     <div class="card"><h4>验证者用谁</h4><ol>
@@ -369,13 +369,13 @@ const STAGES=[
    ['部署到验证环境','共享环境用配置的 deploy 命令部署这个提交并确认 sha。',''],
    ['机器关口 C','验证者在真实环境独立验证；不通过 → 返工回开发。','abm']],
   refs:[['browser.md','连浏览器、被测地址、安全'],['e2e-example.md','Playwright 写法（已实测）'],['explore-checklist.md','探索检查清单'],['verify-skill.md','生成项目验证 skill'],['report-template.md','测试报告模板']]},
- {id:'dev-release',n:5,t:'发布',sum:'合并凭结论，上生产凭你',icons:'mh',
+ {id:'dev-release',n:5,t:'发布',sum:'验证合并结果，按范围确认生产动作',icons:'mh',
   trig:'机器关口 C 放行后自动进入。',reads:'release 配置、已有 CI 和部署方式',
   out:'合并、版本、上线记录',next:'已发布',
-  steps:[['推送、开 PR、等 CI','不需要确认；CI 失败修复后重推。',''],
-   ['检查结论还覆盖代码','比较代码指纹、看默认分支是否前移，不一致就复验。','a'],
-   ['合并','前提：无阻塞任务、无未决 c；L1 先请你确认，L2/L3 直接合并。','m'],
-   ['上生产确认','发布、部署、上线检查列成一份清单，一次确认；L3 整批一份。','h'],
+  steps:[['推送、开 PR、等 CI','确认推送和开 PR 不会触发生产再执行；CI 失败修复后重推。',''],
+   ['检查结论还覆盖代码','比较候选和当前目标分支 tip 的完整代码树快照；不一致时集成当前目标并复验。','a'],
+   ['合并','锁定已验证的 PR head，由平台保护目标基线或验证实际队列候选。缺少保护时交给你处理；L1 还需确认。','m'],
+   ['上生产确认','发布、部署和会触发生产的合并按清单确认。状态写回单独检查生产影响；需确认或影响不明时保留待写回。','h'],
    ['执行和检查','交给项目自己的发布方式；production 只读检查，并看部署后的错误日志，出现新的 5xx 或崩溃就停下报告。','b']],
   refs:[['github-docker-example.md','CI/CD 示意（不能直接用）']]}
 ];
@@ -384,8 +384,8 @@ const GATES=[{col:1,id:'dev-requirements',k:'评审消息',d:'理解、前提、
  {col:2,id:'dev-design',k:'机器关口 B',d:'方案验证（L1 再看一眼）',cls:'mach'},
  {col:3,id:'dev-build',k:'可提测',d:'机器判断',cls:'mach'},
  {col:4,id:'dev-test',k:'机器关口 C',d:'独立验证（L1 再看一眼）',cls:'mach'},
- {col:5,id:'dev-release',k:'合并',d:'凭验证结论',cls:'mach'},
- {col:5,id:'dev-release',k:'上生产',d:'你一次确认'}];
+ {col:5,id:'dev-release',k:'合并',d:'验证快照与平台保护',cls:'mach'},
+ {col:5,id:'dev-release',k:'上生产',d:'你按范围确认'}];
 function lanes(){const el=document.getElementById('lanes');
  let h='<div class="lane-label h">你 / 机器</div><div class="lane h">';
  for(let c=1;c<=5;c++){const gs=GATES.filter(g=>g.col===c);
@@ -417,7 +417,7 @@ const TL=[['you','你','“我想让预览页能直接评论”'],
  ['mach','可提测','测试全过、无严重问题 → 进入测试'],
  ['ai','dev-test','远程浏览器跑 12 个场景并截图；探索检查修了 2 个问题'],
  ['mach','机器关口 C','另一个模型独立验证：通过 → 汇总页更新（你随时可看）'],
- ['mach','合并','代码指纹一致 → 自动合并'],
+ ['mach','合并','快照通过、平台保护已验证的合并结果且不会触发生产 → 自动合并'],
  ['you','你 · 上生产','看清单（发布 1.4.5、部署、上线检查），回 <code>all</code>'],
  ['ai','dev-release','执行发布和部署，production 只读检查，汇总里报告版本和结果']];
 function timeline(){document.getElementById('tl').innerHTML=TL.map(([c,w,t])=>`<div class="ev ${c}"><div class="who">${w}</div><div class="txt">${t}</div></div>`).join('');}
