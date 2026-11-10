@@ -122,3 +122,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1          # status / unins
 - 接着做：“继续”（dev-workflow 按状态行判断从哪里接着做）
 - 关口和汇总回复：`all` 全部按默认；`d2 B`、`c1 同意`、`Q3 B`、`H2 改为 …`、`E1 加入`、`按 L2 跑`、`问 d3`、`重做 <原因>`
 - 单独用某个阶段：“评审一下这段代码”“跑一下测试”——找不到需求文件夹时只做这一步，不会自动往下走
+
+## 许可证
+
+[MIT](LICENSE)
