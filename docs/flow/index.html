@@ -219,7 +219,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
     <div class="card"><h4>六条规则</h4><ol>
       <li>验证者没写过这段代码</li>
       <li>在真实环境里跑：测试 + 测试浏览器走每个场景</li>
-      <li>每个问题要有运行证据，跑不出来不算</li>
+      <li>已确认的问题附运行证据；有依据但缺条件的反例交给测试</li>
       <li>结论绑定代码指纹，代码变了就复验（只改文档不复验）</li>
       <li>只拦用户会遇到的问题</li>
       <li>放松检查一律交给你</li></ol></div>
@@ -359,7 +359,7 @@ const STAGES=[
    ['可提测','任务完成或阻塞、测试全过、无未处理严重问题、无未提交改动 → 自动进入测试。','m']],
   refs:[]},
  {id:'dev-test',n:4,t:'测试',sum:'真实环境里证明每个场景',icons:'bam',
-  trig:'可提测后自动进入。',reads:'spec、tasks、环境配置',
+  trig:'可提测后自动进入。',reads:'spec、tasks、评审待验证项、环境配置',
   out:'浏览器测试、test-report.md、verdict.md、截图',next:'机器关口 C → dev-release',
   steps:[['准备环境','按 e2e_env / verify_env 取地址，缺的问一次；连测试浏览器。','b'],
    ['项目验证 skill','没有就生成 verify-<项目名> 并跑通。',''],
