@@ -166,7 +166,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
     <tr><td><b>L2 常规</b></td><td>信任建立后的日常需求</td><td>关口 A；机器关口自动放行，你看汇总；平台能保护已验证的合并结果时自动合并；上生产按范围确认</td></tr>
     <tr><td><b>L3 批量</b></td><td>一批互相独立的小需求</td><td>一批需求一次确认关口 A；平台能保护已验证的合并结果时自动合并；整批生产动作可合并成一份清单</td></tr>
   </table></div>
-  <p class="muted" style="margin-top:8px">所有等级都一样：难以回头的决定、改你定下的需求、放松检查 → 只暂停那一项；上生产、删数据、强推、对外发消息 → 永远要你确认。L1 升 L2 要满足 4 个条件：跑过 2–3 个需求、项目验证 skill 跑通、机器验证拦下过真问题、反复的错误已变成自动检查。</p>
+  <p class="muted" style="margin-top:8px">合并由谁做可以单独配置：<code>release.merge: human</code> 时所有等级都由你合并，AI 做到开 PR、等 CI、验证为止。所有等级都一样：难以回头的决定、改你定下的需求、放松检查 → 只暂停那一项；上生产、删数据、强推、对外发消息 → 永远要你确认。L1 升 L2 要满足 4 个条件：跑过 2–3 个需求、项目验证 skill 跑通、机器验证拦下过真问题、反复的错误已变成自动检查。</p>
 </section>
 
 <section id="timeline">
@@ -186,7 +186,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
   <p class="muted">说“我要走了”“做完叫我”，进入离开模式：AI 一直做到真正需要你的那一步，通知你，再停下。</p>
   <div class="grid3">
     <div class="card"><h4>做到哪一步才叫你</h4><ul>
-      <li>关口 A：确认需求</li><li>L1 的合并、上生产</li>
+      <li>关口 A：确认需求</li><li>L1 的合并、配置成由你合并时的合并、上生产</li>
       <li>某个只有你能定的事卡住了全部工作</li><li>需求走不通、对外动作失败</li><li>整个需求跑完</li></ul>
       <p class="muted" style="font-size:12.5px">离开模式下，L1 的机器关口也不停，只更新汇总；回来后你可以改任何决定。</p></div>
     <div class="card"><h4>怎么通知你</h4><ul>
@@ -208,7 +208,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
       <li>每个阶段的开始和结束</li><li>问了你几次、你多久回复</li><li>机器关口跑了几轮、验证者是谁</li>
       <li>拦下几个问题、返工几次、做了几次实验</li><li>合并后又发现几个问题（修 bug 时用 git 查出是哪个需求引入的）</li></ul></div>
     <div class="card"><h4>统计页</h4><p>说“统计一下 devflow 的效果”，汇总所有需求：耗时、打扰你的次数、等你的时间、机器关口轮次，以及最关键的一项：</p>
-      <p><b>合并后发现的问题 ÷ 验证拦下的问题</b>，越低说明机器验证越靠谱。</p></div>
+      <p><b>逃逸率 = 合并后发现的问题 ÷（验证拦下的问题 + 合并后发现的问题）</b>，越低说明机器验证越靠谱。</p></div>
     <div class="card"><h4>为什么要记</h4><p>规则越加越多，不测就不知道哪些真有用。有了数据，才能删掉没用的规则，或者做“用 / 不用 devflow”的对照实验。</p></div>
   </div>
 </section>
@@ -272,7 +272,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
   <div class="grid3">
     <div class="card"><h4>状态（给你看）</h4><p>草案 → 已确认 → 开发中 → 测试中 → 已验证 → 已合并 → 已发布；任何时候可以“搁置”。</p></div>
     <div class="card"><h4>阶段（给 AI 续做）</h4><p>正在做哪个 skill。每个阶段开始时改成自己，交接时改成下一个。</p></div>
-    <div class="card"><h4>待关口（在等你）</h4><p>评审 / A / B / C / 合并 / 上生产 / c&lt;n&gt; / 停-n。你说“继续”时，AI 把等待中的简报重发给你，不会当成通过。</p></div>
+    <div class="card"><h4>待关口（在等你）</h4><p>评审 / A / B / C / 合并 / 人工合并 / 上生产 / c&lt;n&gt; / 停-&lt;n&gt;。你说“继续”时，AI 把等待中的简报重发给你，不会当成通过（等你合并时，先读回合并状态）。</p></div>
   </div>
   <h3>状态怎么变，哪里会回头</h3>
   <div class="svgbox"><svg id="sm" viewBox="0 0 1230 250" width="100%" style="min-width:800px" role="img" aria-label="状态流转图"></svg></div>
@@ -361,9 +361,9 @@ const STAGES=[
  {id:'dev-test',n:4,t:'测试',sum:'真实环境里证明每个场景',icons:'bam',
   trig:'可提测后自动进入。',reads:'spec、tasks、评审待验证项、环境配置',
   out:'浏览器测试、test-report.md、verdict.md、截图',next:'机器关口 C → dev-release',
-  steps:[['准备环境','按 e2e_env / verify_env 取地址，缺的问一次；连测试浏览器。','b'],
+  steps:[['准备环境','按 e2e_env / verify_env 取地址，缺的问一次；有界面时连测试浏览器。','b'],
    ['项目验证 skill','没有就生成 verify-<项目名> 并跑通。',''],
-   ['补齐测试','每个浏览器场景一个 Playwright 测试，截图留证。','b'],
+   ['补齐测试','网页场景写 Playwright 测试并截图留证，命令行/接口场景从用户入口写端到端测试。','b'],
    ['探索式检查 + 修复','像人一样逐页点，同时看日志；先写回归测试再修，原因不明显时按“假设 → 实验 → 数据”找。','b'],
    ['验收核对','完整、正确、一致、干净。',''],
    ['部署到验证环境','共享环境用配置的 deploy 命令部署这个提交并确认 sha。',''],
@@ -374,7 +374,7 @@ const STAGES=[
   out:'合并、版本、上线记录',next:'已发布',
   steps:[['推送、开 PR、等 CI','确认推送和开 PR 不会触发生产再执行；CI 失败修复后重推。',''],
    ['检查结论还覆盖代码','比较候选和当前目标分支 tip 的完整代码树快照；不一致时集成当前目标并复验。','a'],
-   ['合并','锁定已验证的 PR head，由平台保护目标基线或验证实际队列候选。缺少保护时交给你处理；L1 还需确认。','m'],
+   ['合并','锁定已验证的 PR head，由平台保护目标基线或验证实际队列候选。缺少保护时交给你处理；L1 还需确认；配置 merge: human 时由你合并，AI 读回状态。','m'],
    ['上生产确认','发布、部署和会触发生产的合并按清单确认。状态写回单独检查生产影响；需确认或影响不明时保留待写回。','h'],
    ['执行和检查','交给项目自己的发布方式；production 只读检查，并看部署后的错误日志，出现新的 5xx 或崩溃就停下报告。','b']],
   refs:[['github-docker-example.md','CI/CD 示意（不能直接用）']]}

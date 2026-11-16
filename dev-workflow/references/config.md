@@ -5,7 +5,7 @@
 | 文件 | 放什么 | 进仓库吗 |
 |------|--------|----------|
 | `.devflow.yml`（项目根目录） | 技术栈和约定、命令、需求目录、自主等级、有哪些环境和各自的数据规则、只有人能定的事、对外开关、不变的规则、升级说明位置、各阶段的额外规则、发布方式 | 进。**地址只写变量名，不写真实地址** |
-| `~/.config/devflow/config.yml`（本机） | 和机器有关的（测试浏览器、vibeview、通知、验证模型、花费上限；按天的用量账在同目录的 `usage/<日期>.log`），以及**每个人在每个项目里的环境地址**（按仓库根目录分组） | 不进 |
+| `~/.config/devflow/config.yml`（本机） | 和机器有关的（测试浏览器、预览服务、通知、验证模型、花费上限；按天的用量账在同目录的 `usage/<日期>.log`），以及**每个人在每个项目里的环境地址**（按仓库根目录分组） | 不进 |
 
 密钥和账号只放环境变量，两个文件里都只写变量名。
 
@@ -34,7 +34,7 @@ environments:                   # 有哪些环境；地址一律写变量名
     data: 可随意读写，可重置
   staging:
     url_env: MYPROJ_STAGING_URL
-    deploy: "使用 $deploy-view 部署到 staging"
+    deploy: "./scripts/deploy.sh staging"
     data: 共享环境：只能用 e2e- 开头的测试数据，用完清理
     account_env: [STAGING_TEST_USER, STAGING_TEST_PASS]
   production:
@@ -42,7 +42,7 @@ environments:                   # 有哪些环境；地址一律写变量名
     data: 只读：只做上线后检查，不提交表单、不写数据
 
 test:
-  e2e_env: local                # 开发时跑浏览器测试的环境
+  e2e_env: local                # 开发时跑端到端测试的环境
   verify_env: staging           # 机器关口 C 独立验证的环境；用户说过没有这个环境（url: none）时用 e2e_env
   cloud_browser: allowed        # allowed / forbidden：页面和截图会经过云浏览器服务商，数据敏感的项目写 forbidden
 
@@ -70,11 +70,13 @@ rules:                          # 只对某个阶段生效的额外规则
   test: []
 
 release:
+  merge: auto                   # auto / human：合并由 AI 做还是由人做，默认 auto（读取规则 7）
   bump: patch                   # 默认升哪一位：patch / minor / major
   tag_prefix: v
   # {version} 是不带前缀的版本号（1.4.5），{tag} 是标签（v1.4.5）
-  publish: "使用 $release 发布 {version}"
-  production: "使用 $deploy-view 部署 {tag}"
+  # publish、production 的值可以是一条命令，也可以是一句交给项目自己的发布、部署 skill 的话
+  publish: "./scripts/release.sh {version}"
+  production: "./scripts/deploy.sh production {tag}"
   post_check: "读部署记录确认运行的是 {version}；打开首页截图"   # 写项目真实有的检查：页面上不显示版本号的项目不要写“看首页版本号”
 ```
 
@@ -93,8 +95,9 @@ notify:                              # 见 away.md；不写时：有推送工具
   webhook_env: DEVFLOW_NOTIFY_WEBHOOK   # webhook 地址所在的环境变量
   payload: feishu                    # slack / feishu / wecom / ntfy / raw
 variants: 4                          # 多方案对比页最多几个方案
+merge: auto                          # auto / human：这台机器上合并由谁做（读取规则 7）
 budget:                              # devflow 自己花的钱的上限，超了就停下告诉你
-  verify_rounds_per_change: 6        # 一个需求最多派几轮验证者（B、C、复验合计）
+  verify_rounds_per_change: 6        # 一个需求最多派几轮验证者（B、C、复验合计；关口 B 最多占 2 轮）
   external_model_calls_per_change: 20  # 一个需求最多调用几次其他模型（codex / claude）
   cloud_browser_minutes_per_day: 60  # 云浏览器每天最多用多少分钟
   experiment_model_calls: 30         # 一次实验最多调用几次模型
@@ -106,6 +109,7 @@ verify:
 projects:
   /home/you/github/myproj:           # 键是仓库根目录的绝对路径
     autonomy: L2                     # 可选：这台机器上覆盖项目默认等级
+    merge: human                     # 可选：这个项目的合并由人做
     environments:
       local:   { url: http://192.168.1.20:3000 }
       staging: { url: https://staging.internal.example.com }
@@ -126,6 +130,7 @@ projects:
 4. **给测试浏览器用的地址**：测试浏览器在另一台机器上时，它的 localhost 不是这台机器。所以取到的地址如果是 `localhost` 或 `127.0.0.1`，而本机配置有 `browser.host`，浏览器访问时把主机换成 `browser.host`（端口和路径不变）。这台机器上的命令（启动、健康检查）仍用原地址。
 5. **自主等级**：用户在这个需求里说的 > 本机配置本项目下的 `autonomy` > `.devflow.yml` 的 `autonomy` > L1。建 spec 时按这个顺序算出来写进状态行，之后以状态行为准。
 6. `release.bump` 默认 `patch`，`tag_prefix` 默认 `v`。
+7. **合并由谁做**（`merge`，取值 `auto` / `human`）：用户当次明确说的优先；否则 `.devflow.yml` 的 `release.merge`、本机配置顶层的 `merge`、本机配置本项目下的 `merge`，任何一处写了 `human` 就是 `human`；都没写是 `auto`。两种取值的做法见 dev-release 第 3 步。
 
 ## 缺地址时
 

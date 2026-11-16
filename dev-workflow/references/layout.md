@@ -17,7 +17,7 @@ docs/changes/
     ├── test-report.md   测试结果（dev-test，每轮覆盖）
     ├── verdict.md       独立验证结论（dev-test，每轮覆盖；旧的移到 verdict-history.md）
     ├── evidence/        截图等证据
-    └── pages/           要上传到 vibeview 的页面源文件
+    └── pages/           页面源文件（按 preview.md 上传或留在本地）
         ├── prototype/   效果页
         ├── summary/     汇总页（同一个链接，持续更新）
         └── compare-<n>/ 需求走不通时的对比页
@@ -25,9 +25,10 @@ docs/changes/
 
 - 短名用小写英文加连字符，3–5 个词。
 - 项目原来有别的需求文档目录（比如 `docs/specs/*.md`），**不要迁移旧文件**。新需求按这里的格式放；`docs_dir` 可以在配置里改。
-- `pages/` 放在仓库里，是为了让 vibeview 每次上传同一个路径时更新到同一个链接（见 preview.md）。
+- `pages/` 放在仓库里，是为了让预览服务每次上传同一个路径时更新到同一个链接（见 preview.md）。
 - 项目级的文件：`.devflow.yml`（配置）、`docs/secrets-checklist.md`（CI 需要的密钥清单，只写变量名）、项目验证 skill（`.claude/skills/verify-<项目名>/` 或 `.agents/skills/verify-<项目名>/`，见 dev-test）。
 - 临时文件放 `.devflow-tmp/`，第一次用时加进 `.git/info/exclude`，不提交。
+- 多组件的需求，同一类文件要分组件写时，命名 `<文件名>-<组件>.md`（如 `review-gateway.md`），主文件（`review.md` 等）里汇总结论并链接；不新增上面没有的文件种类。
 
 ## 状态行
 
@@ -40,10 +41,19 @@ spec.md 标题下第一行：
 | 字段 | 含义 | 谁来改 |
 |------|------|--------|
 | **状态** | 需求走到哪了，给人和索引看 | 阶段切换、关口放行时改 |
-| **阶段** | 正在做哪个 skill，给 AI 续做用 | 每个阶段开始时改成自己；交接时改成下一个 |
-| **待关口** | 正在等用户回复什么：评审、A、B、C、合并、上生产、c<n>、停-n；没有就写 `—` | 发出需要回复的简报时写上；处理完清空 |
-| **等级** | 这个需求的自主等级；后面可以跟 `离开`（离开模式，见 away.md） | 创建时按 config.md 的优先级算出（用户说的 > 本机配置本项目下 > `.devflow.yml` > L1）；用户说“按 L3 跑”时改 |
-| 规模、创建、更新 | 微小/小/标准；日期 | dev-requirements 写规模；每次改状态行时更新日期 |
+| **阶段** | 正在做哪个 skill，给 AI 续做用：dev-requirements、dev-design、dev-build、dev-test、dev-release；清空时写 `—` | 每个阶段开始时改成自己；交接时改成下一个 |
+| **待关口** | 正在等用户回复什么：评审、A、B、C、合并、人工合并、上生产、`c<n>`、`停-<n>`；没有就写 `—` | 发出需要回复的简报时写上；处理完清空 |
+| **等级** | 这个需求的自主等级：L1、L2、L3；后面可以跟一个空格加 `离开`（离开模式，见 away.md） | 创建时按 config.md 的优先级算出（用户说的 > 本机配置本项目下 > `.devflow.yml` > L1）；用户说“按 L3 跑”时改 |
+| 规模、创建、更新 | 小 / 标准（微小不建需求文件夹）；日期 | dev-requirements 写规模；每次改状态行时更新日期 |
+
+改状态行一律用 [devflow_record.py](../scripts/devflow_record.py) 的 `status` 子命令（`<dev-workflow>` 是 dev-workflow skill 目录的绝对路径）。它校验每个字段的取值，自动更新“更新”日期，按固定顺序重写这一行；不带修改参数时只校验：
+
+```bash
+python3 <dev-workflow>/scripts/devflow_record.py status --spec <spec.md>
+python3 <dev-workflow>/scripts/devflow_record.py status --spec <spec.md> --state 开发中 --phase dev-build --gate —
+```
+
+参数：`--state`、`--phase`、`--gate`、`--level`、`--scale`。状态、阶段、待关口只能用表里的值；要补充说明写进 spec 的“变更记录”，不写进状态行。
 
 ### 状态
 
@@ -56,7 +66,7 @@ spec.md 标题下第一行：
 | 已验证 | 机器关口 C 放行（还没合并、没发布） |
 | 已合并 | 合并到默认分支后 |
 | 已发布 | 上生产完成后 |
-| 搁置 | 用户说不做了；写明原因 |
+| 搁置 | 用户说不做了；原因写进变更记录 |
 
 “只暂停这一项”的 `c<n>` 不改状态，只在 tasks.md 里标“阻塞”并写进汇总。
 
@@ -104,4 +114,5 @@ spec.md 标题下第一行：
 
 - **dev-requirements 建文件夹时**，不管当前在哪个分支，都从默认分支新开本地分支 `change/<短名>`（见 dev-requirements 第 1 步）。发布时因默认分支被改写换成 `change/<短名>-2` 的，以 spec 变更记录里登记的分支为准。建本地分支、本地提交、建 worktree 都不需要确认。
 - **每个阶段结束时**，提交本阶段的产物（文档、代码、`.dview.json`），提交信息写明阶段，比如 `docs(review-comments): spec and prototype`。
+- 提交信息：项目有自己的规范时跟随项目；各 skill 里写的 `feat:`、`fix:` 等前缀是没有规范时的默认。分支名保持 `change/<短名>`。
 - 推送、开 PR、合并、上生产都在发布阶段处理（dev-release）。

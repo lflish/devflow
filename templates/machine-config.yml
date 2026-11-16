@@ -11,8 +11,9 @@ notify:                              # 不写时：有推送工具（Claude Code
   # webhook_env: DEVFLOW_NOTIFY_WEBHOOK   # webhook 地址所在的环境变量
   # payload: feishu                       # slack / feishu / wecom / ntfy / raw
 variants: 4                          # 口味类决定的多方案对比页最多几个方案
+# merge: human                       # 这台机器上所有项目的合并都由人做（auto / human，默认 auto）
 budget:                              # 花费上限（按需求、按天或按次，见各项），超出就停下记 c<n> 等你
-  verify_rounds_per_change: 6
+  verify_rounds_per_change: 6        # B、C、复验合计；关口 B 最多占 2 轮
   external_model_calls_per_change: 20
   cloud_browser_minutes_per_day: 60
   experiment_model_calls: 30
@@ -24,6 +25,7 @@ verify:
 projects:
   # /home/you/github/your-project:   # 键是仓库根目录的绝对路径
   #   autonomy: L2
+  #   merge: human                   # 这个项目的合并由人做
   #   environments:
   #     local:   { url: http://192.168.1.20:3000 }
   #     staging: { url: https://staging.internal.example.com }
