@@ -50,8 +50,10 @@ rules:
   test: []
 
 release:
+  merge: auto        # auto：验证通过后由 AI 合并 / human：AI 开 PR、验证，由人合并
   bump: patch
   tag_prefix: v
-  publish: ""        # 例：使用 $release 发布 {version}
-  production: ""     # 例：使用 $deploy-view 部署 {tag}
+  # publish、production：一条命令，或一句交给项目自己的发布/部署 skill 的话
+  publish: ""        # 例：./scripts/release.sh {version}
+  production: ""     # 例：./scripts/deploy.sh production {tag}
   post_check: ""     # 例：读部署记录或 /healthz 确认运行的是 {version}；打开主要页面截图（写项目真实有的检查）

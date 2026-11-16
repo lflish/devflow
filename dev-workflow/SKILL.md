@@ -19,7 +19,7 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 | 2 | 设计 | dev-design | `design.md`、`tasks.md` | **机器关口 B**：方案验证 |
 | 3 | 开发 | dev-build（调用 dev-review） | 代码、提交、`review.md` | **可提测**（机器判断） |
 | 4 | 测试 | dev-test | 测试代码、`test-report.md`、`verdict.md`、截图 | **机器关口 C**：独立验证 |
-| 5 | 发布 | dev-release | 合并、版本、上线记录 | **合并**（凭验证结论）→ **上生产**（人） |
+| 5 | 发布 | dev-release | 合并、版本、上线记录 | **合并**（凭验证结论；`merge: human` 时由人合并）→ **上生产**（人） |
 
 贯穿所有阶段：本 skill（总纲和共用规则）；`dev-review`（通用评审，开发阶段调用，也可单独用）。
 
@@ -35,6 +35,8 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 | **L2 常规** | 关口 A；机器关口自动放行，只更新汇总；合并凭验证结论；上生产前确认 |
 | **L3 批量** | 一批互相独立的需求一次确认关口 A；之后自动跑到合并；上生产前确认一次 |
 
+合并由谁做另由 `merge` 决定（[config.md](references/config.md) 读取规则 7）：默认 `auto`，按上表；`human` 时所有等级都由用户合并，AI 做到开 PR、等 CI、校验验证快照为止，状态行写 `待关口：人工合并`（dev-release 第 3 步）。
+
 所有等级都一样：[decisions.md](references/decisions.md) 里“只有人能做的事”只暂停那一项，其余照常推进；上生产、删数据、强推、对外发消息永远要用户确认。离开模式下 L1 的机器关口 B、C 也不停，只更新汇总；L1 的合并仍要确认（away.md）。
 
 项目在 L1 下满足 gates.md 里的 4 个升级条件后，在下一次汇总里提示用户可以升到 L2；不要自己改等级。
@@ -42,7 +44,7 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 ## 怎么交接给下一阶段
 
 一个阶段做完、或关口放行后，**在同一轮里立刻继续**：
-1. 把 spec 状态行的“阶段”改成下一阶段（字段见 [references/layout.md](references/layout.md)）；
+1. 把 spec 状态行的“阶段”改成下一阶段（用 `devflow_record.py status`，见 [references/layout.md](references/layout.md)）；
 2. 读下一阶段的 `../<skill 名>/SKILL.md`，按它执行。
 
 不要停下来问“要不要继续”，也不要凭记忆做下一阶段而不读它的 SKILL.md。
@@ -51,7 +53,10 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 
 1. **读配置**：项目根目录 `.devflow.yml`，以及本机 `~/.config/devflow/config.yml` 顶层和其中本项目（键为仓库根目录的绝对路径）的部分，见 [references/config.md](references/config.md)。没有项目配置时：在需求流程里，按 config.md 推断一份草稿，在关口 A 请用户确认；**独立模式下不生成草稿**，按推断的值直接用。
 2. **读共用规则**：[references/decisions.md](references/decisions.md) 和 [references/metrics.md](references/metrics.md) 每次都读。其余按需读：要问用户问题读 [questions.md](references/questions.md)；到了关口或要发汇总读 [gates.md](references/gates.md)；要做机器验证读 [verification.md](references/verification.md)；建文件、改状态读 [layout.md](references/layout.md)；生成页面读 [preview.md](references/preview.md)；离开模式、worktree、通知读 [away.md](references/away.md)。
-3. **找到当前需求**：读 `<docs_dir>/README.md` 索引（默认 `docs/changes/`）；再用 `git worktree list` 看主仓库根下 `.devflow-tmp/worktrees/` 里有没有 devflow 的 worktree，有就也读它们分支上的索引（离开模式和批量需求在那里做，见 away.md）。**未完成**指状态不是“已发布”“搁置”，也不是“已合并”且变更记录写了“不上生产”。用户提到的需求，或唯一一个未完成的需求，就是当前需求。同一批（L3）的多个需求按**默认分支**上的索引顺序（`git show <默认分支>:<docs_dir>/README.md`）取第一个未完成的。有多个互不相关的未完成需求、又看不出是哪个时，列出来请用户选（允许的例外之一）。
+3. **找到当前需求**：读 `<docs_dir>/README.md` 索引（默认 `docs/changes/`）；再用 `git worktree list` 看主仓库根下 `.devflow-tmp/worktrees/` 里有没有 devflow 的 worktree，有就也读它们分支上的索引（离开模式和批量需求在那里做，见 away.md）。
+   - 用 `git for-each-ref --format='%(refname:short)' refs/heads/devflow-writeback/` 找出本地写回分支，读取相关分支的 spec 和批次索引，对照目标默认分支。用默认分支缺少的最新记录恢复进度，确认实际 PR 合并、发布或部署结果后再决定下一步。已结束的需求只按写回规则处理未写入的记录。
+   - 用户提到的需求，或唯一一个未完成的需求，就是当前需求。“已发布”“搁置”，以及状态“已验证”或“已合并”且写了“不上生产”的需求均已结束。同一批（L3）按默认分支索引顺序取第一个未完成的（停在 `待关口：人工合并` 的先读回合并状态，仍未合并就跳过它取下一个，见 dev-release 第 3 步）；批次索引待写回时，从 spec 记录的本地登记分支读取顺序。有多个互不相关的未完成需求、又看不出是哪个时，列出来请用户选。
+   - 找到后先校验状态行：`python3 <dev-workflow>/scripts/devflow_record.py status --spec <spec.md>`（`<dev-workflow>` 是本 skill 目录的绝对路径，见 layout.md）。校验不过就按 spec 变更记录和 decisions.md 最后几行判断实际进度，用一次带齐字段（`--state --phase --gate --level --scale`）的 `status` 调用修好再继续。
 4. **判断从哪里接着做**：按下一节。
 
 ## 判断从哪里接着做
@@ -60,10 +65,10 @@ description: 软件开发全流程总纲（devflow）。用户问开发流程怎
 
 | 情况 | 做什么 |
 |------|--------|
-| “待关口”有值 | 用户这条消息如果是对它的回复，按 gates.md 解析并处理；“继续”“接着做”**不算**回复，把这个关口的简报重发一遍，等回复。`c<n>` 只暂停一项时不写“待关口”，不影响这里 |
+| “待关口”有值 | 用户这条消息如果是对它的回复，按 gates.md 解析并处理；“继续”“接着做”**不算**回复，把这个关口的简报重发一遍，等回复。例外：`待关口：人工合并` 时任何消息（包括“继续”）都先读回合并状态，按 dev-release 第 3 步“人工合并”处理。`c<n>` 只暂停一项时不写“待关口”，不影响这里 |
 | 有“阶段”值 | 读那个阶段的 SKILL.md，从它的“接着做”处继续 |
 | 状态“已合并”，没写“不上生产”，release 配了发布或部署 | dev-release 第 4 步（上生产确认） |
-| 状态“已发布”“搁置”，或“已合并”且不再上生产 | 这个需求已结束；有别的未完成需求就换它，没有就告诉用户没有进行中的需求 |
+| 状态“已发布”“搁置”，或“已验证”／“已合并”且不再上生产 | 这个需求已结束；有别的未完成需求就换它，没有就告诉用户没有进行中的需求 |
 | 没有需求文件夹（新想法） | dev-requirements |
 
 换了会话或上下文被压缩后也按这张表续上，再看 `decisions.md` 最后几行和 `tasks.md` 的进度，不要从头再来。
@@ -81,7 +86,7 @@ dev-requirements 开始时判断一次，写进状态行。
 | 规模 | 判断 | 流程 |
 |------|------|------|
 | 微小 | 改错字、改配置值、一行修复 | 不建需求文件夹。直接改、跑测试，在回复里说明改了什么、怎么验证的 |
-| 小 | 少于 3 个文件，不改对外接口，不加依赖 | 精简 spec；关口 A 里顺带写技术方案和任务；跳过设计阶段，直接进开发 |
+| 小 | 少于 3 个文件，不改对外接口，不加依赖 | 精简 spec；关口 A 里顺带写技术方案和任务；跳过设计阶段，直接进开发。测试阶段按 dev-test 的小规模简化（产物不省） |
 | 标准 | 其他 | 完整流程 |
 
 做着做着发现变大了：升级规模，在 `decisions.md` 记一行，补上跳过的产物，在汇总里说明。不要因为变大就停下来问。
@@ -94,7 +99,7 @@ dev-requirements 开始时判断一次，写进状态行。
 
 1. **关口之间不问人。** 只有 decisions.md 列出的“只有人能做的事”和“允许问人的例外”可以问。
 2. **spec 是唯一依据。** 代码和 spec 对不上时，以 spec 为准；要改 spec 是“只有人能做的事”（`c<n>`），交给用户。
-3. **产物落地才算完成。** 文件写好、状态改好、本阶段的文件提交了才算。
+3. **产物落地才算完成。** 文件写好、状态改好、本阶段的文件提交了才算。规定的产物和步骤不能自行省略；认为某一步对这个需求不适用时照样留下产物，在里面写“不适用：<原因>”，并在 decisions.md 记一行。
 4. **说“通过”要有证据。** 附上实际运行的命令和输出，不能说“应该能过”。机器关口只认验证结论（verification.md）。
 5. **不靠放松检查来过关。** 不删测试、不跳过测试、不放宽断言、不调大超时、不加忽略规则。确实需要时，交给用户决定。
 6. **不扩大范围。** spec 之外的改进记进 `tasks.md` 末尾的“后续”，不擅自做。
