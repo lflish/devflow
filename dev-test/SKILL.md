@@ -1,6 +1,6 @@
 ---
 name: dev-test
-description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的项目里（有 .devflow.yml 或 docs/changes/），开发阶段“可提测”后，或用户对某个需求说“测试”“验收”“e2e”时使用。补齐测试、编写端到端测试（有界面用测试浏览器，没有界面从命令行、接口或公开 API 操作）、做探索式检查和修复；项目还没有专用验证 skill 时先生成；最后由没写过代码的验证者（优先同级别的其他模型）独立验证，机器关口 C 放行。产出 test-report.md、verdict.md 和证据。
+description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的项目里（有 .devflow.yml 或 docs/changes/），开发阶段“可提测”后，或用户对某个需求说“测试”“验收”“e2e”时使用。补齐测试、编写端到端测试（有界面用测试浏览器，没有界面从命令行、接口或公开 API 操作）、做探索式检查和修复；项目还没有专用验证 skill 时先生成；最后由没写过代码的验证者（优先同级别的其他模型）独立验证，机器关口 C 放行。产出 test-report.md、verdict.md 和证据；有界面改动时调用 dev-preview 交付操作录屏。
 ---
 
 # dev-test：测试和验收
@@ -20,9 +20,11 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 ## 1. 准备环境
 
-1. 按 config.md 的读取规则取 `test.e2e_env` 和 `test.verify_env` 的地址（测试浏览器用的地址按规则 4 换主机）。缺地址的：一次性问用户，写进本机配置（config.md“缺地址时”）。
+1. 按 config.md 的读取规则取本次测试需要的 `test.e2e_env` 和 `test.verify_env` 地址。存在浏览器验收场景时才要求浏览器访问地址，并按规则 4 换主机。缺少适用测试必需的地址时，一次性问用户，写进本机配置（config.md“缺地址时”）。
 2. 读这两个环境的 `data` 规则，整个阶段都按它来（共享环境只动测试数据，production 只读）。本地跑测试和服务时，`.devflow.yml` 的 `safety_valves` 一律保持关闭，测试不访问真实的外部服务和付费服务。
-3. **本需求有界面场景时才做**：按 [references/browser.md](references/browser.md) 选这次用哪种测试浏览器（本机无头 / 固定 CDP / 云浏览器；云浏览器只能测公网地址，用之前按 verification.md 读当天的用量账，对照 `budget`），把 `devflow-browser.js` 复制到项目的 `tests/e2e/`（已有就跳过；项目已经有自己的浏览器测试写法，比如 `scripts/*.js --browser` 直接调 Playwright，就跟随项目，不复制、不另起一套），检查能连上、能打开被测地址；local 环境需要时先用 `environments.local.start` 启动服务。没有界面场景时跳过选浏览器，只按需启动服务。
+3. 有浏览器验收场景时，按 [references/browser.md](references/browser.md) 选测试浏览器（本机无头 / 固定 CDP / 云浏览器；云浏览器只能测公网地址，用之前按 verification.md 读当天的用量账，对照 `budget`），把 `devflow-browser.js` 复制到项目的 `tests/e2e/`（已有就跳过；项目已有浏览器测试入口时跟随项目，不复制、不另起一套），检查能连上、能打开被测地址。任何适用测试需要 local 服务时，先用 `environments.local.start` 启动服务。
+
+没有浏览器验收场景的纯后端任务，将浏览器连接、界面探索和录屏记为“不适用”；仍执行 API、数据库或库测试、环境数据规则和独立验证，并按规模规则使用项目验证 skill。不能以没有录屏为由跳过实际适用的浏览器验收场景。
 
 ## 2. 项目验证 skill
 
@@ -40,9 +42,11 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 - **浏览器**：每个“浏览器”场景写一个 Playwright 测试，提交进仓库，写法见 [references/e2e-example.md](references/e2e-example.md)：有 CDP 地址时连远程浏览器，没有时用本机无头浏览器；关键场景最后调用 `evidence('<场景编号>')` 截图。按 browser.md 的“运行脚本化测试”在 `e2e_env` 上运行。
 - **端到端（没有界面）**：每个“端到端”场景用项目自己的测试框架写一个测试，从用户入口操作（执行命令看输出和退出码、发 HTTP 请求看响应、写一个只用公开接口的调用方脚本），提交进仓库；关键场景的实际输出存进需求文件夹的 `evidence/`（文本文件，文件名用场景编号）。
 
+有界面改动时，读 [dev-preview](../dev-preview/SKILL.md)，从现有用例选一条关键流程随测试保留短录屏；已有同版本录像可复用。纯后端任务不强制录屏，录制能力不可用时明确交付截图替代。
+
 ## 4. 探索式检查
 
-按 verify skill 和 [references/explore-checklist.md](references/explore-checklist.md)，把本需求涉及的页面像用户一样实际用一遍，问题编号 `X1`、`X2`…，记录严重程度、复现步骤、截图。只用测试浏览器（browser.md 的“探索式检查用的 Playwright MCP”）。没有界面时，按 verify skill 的操作方式把入口实际用一遍，清单见 explore-checklist.md 的“没有界面时”，证据记命令和实际输出。
+有浏览器验收场景时，按 verify skill 和 [references/explore-checklist.md](references/explore-checklist.md)，把本需求涉及的页面像用户一样实际用一遍，问题编号 `X1`、`X2`…，记录严重程度、复现步骤、截图。只用测试浏览器（browser.md 的“探索式检查用的 Playwright MCP”）。没有界面时，按 verify skill 的操作方式把入口实际用一遍，清单见 explore-checklist.md 的“没有界面时”，证据记命令和实际输出。
 
 ## 5. 修复
 
@@ -57,7 +61,9 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 ## 6. 全量运行和测试报告
 
-运行全部测试（`commands.test`，以及在 `e2e_env` 上运行 `commands.e2e`），附实际输出。按 [references/report-template.md](references/report-template.md) 写 `test-report.md`（每轮覆盖）。端到端测试（有界面的是浏览器测试）没做或只做了一部分，在报告开头醒目写明原因。
+运行全部测试（`commands.test`，以及在 `e2e_env` 上运行本次适用的 `commands.e2e`），附实际输出。没有浏览器场景时，仅将浏览器专用项记为“不适用”，不能跳过 API、数据库、库测试或适用的非浏览器 e2e。按 [references/report-template.md](references/report-template.md) 写 `test-report.md`（每轮覆盖）。适用的端到端测试（有界面的是浏览器测试）没做或只做了一部分，在报告开头醒目写明原因。
+
+按 dev-preview 核对本轮录屏与被测代码、场景和断言结果，完成“交付预览”一节；返工改变相关行为时重新录制受影响场景。录像仅便于 review，不代替测试和下面的独立验证。
 
 ## 7. 验收核对
 
@@ -78,7 +84,7 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 3. **核对实际版本**：用例访问服务时，开始和结束分别通过同一测试地址的版本接口、可对应到该实例的只读部署记录，或本地独立实例的进程与启动记录确认实际运行的提交 SHA。通用健康状态不能证明版本。共享环境使用固定到该部署的地址、独占部署，或通过部署记录证明两次检查之间无切换。无法确认、SHA 不符或期间有漂移时，本轮结果不得放行；修正环境后重跑受影响的用例。确实没有服务（如纯库）时，记录不适用的原因，只核对执行检查的 worktree。
 4. 按 verification.md 选验证者（优先同级别的其他模型），提供快照和版本核对方式，结论写到 `verdict.md`（派之前先把旧结论追加到 `verdict-history.md`）。处理结论前，核对它是本轮产生的，JSON 快照与本轮捕获的快照一致，包含版本核对结果。只有核对通过的本轮结论可以进入以下处理。
 
-- **通过 / 通过，有备注**：按 gates.md 更新汇总（等你的事在最前，然后是场景、截图、验证者和提交），汇总页源文件在 `pages/summary/`。
+- **通过 / 通过，有备注**：按 gates.md 更新汇总（等你的事在最前，然后是场景、交付录屏或截图、验证者和提交），汇总页源文件在 `pages/summary/`。录屏旁写明实际环境、版本、结果和未覆盖内容，缺录屏时说明替代方式。
   - **L1**：状态和阶段先不改；汇总末尾请用户回复，状态行写 `待关口：C`，提交，这一轮结束。回复后按 gates.md 的表处理（状态“已验证”、阶段 `dev-release`）。
     例外：这一轮是返工复验，而返工任务的来源写着“关口 C 已放行，先改 …”（gates.md“通过，但先改一下”）时，复验通过就不再问，直接按已给的放行改为“已验证”、进入 dev-release，汇总里说明。
   - **L2 / L3**：状态改为“已验证”，阶段改为 `dev-release`，提交，然后读 `../dev-release/SKILL.md` 并执行。
@@ -89,5 +95,5 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 - 不改测试迁就错误的实现。
 - 不用操作用户个人浏览器的工具（Claude in Chrome、桌面内置浏览器、computer use）。
-- 端到端测试没做不能算通过（有界面的是浏览器测试）；独立验证没做不能放行。
+- 适用的端到端测试没做不能算通过（有界面的是浏览器测试）；独立验证没做不能放行。
 - 不违反环境的数据规则：共享环境只动测试数据，production 只读。
