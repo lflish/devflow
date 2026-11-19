@@ -1,6 +1,6 @@
 ---
 name: dev-test
-description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的项目里（有 .devflow.yml 或 docs/changes/），开发阶段“可提测”后，或用户对某个需求说“测试”“验收”“e2e”时使用。按项目环境配置连接测试浏览器（CDP），补齐测试、编写浏览器端到端测试、做探索式检查和修复；项目还没有专用验证 skill 时先生成；最后由没写过代码的验证者（优先同级别的其他模型）独立验证，机器关口 C 放行。产出 test-report.md、verdict.md 和截图；有界面改动时调用 dev-preview 交付操作录屏。
+description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的项目里（有 .devflow.yml 或 docs/changes/），开发阶段“可提测”后，或用户对某个需求说“测试”“验收”“e2e”时使用。补齐测试、编写端到端测试（有界面用测试浏览器，没有界面从命令行、接口或公开 API 操作）、做探索式检查和修复；项目还没有专用验证 skill 时先生成；最后由没写过代码的验证者（优先同级别的其他模型）独立验证，机器关口 C 放行。产出 test-report.md、verdict.md 和证据；有界面改动时调用 dev-preview 交付操作录屏。
 ---
 
 # dev-test：测试和验收
@@ -14,6 +14,8 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 3. **独立模式**：找不到需求文件夹时（用户只是说“跑一下测试”），只运行或补写用户指的测试，结果直接告诉用户；不写报告、不做机器关口、不交接。
 4. **记数据**（metrics.md）：阶段开始、结束；每次派验证者、用云浏览器后记“用量”；探索式检查和独立验证拦下的问题记“验证拦下问题”；机器关口 C 的每轮结论（第几轮、验证者）；验证不通过时记“返工”。
 
+**小规模**的简化：项目没有验证 skill 时**不新生成**（已有就用），直接按项目的启动和测试命令操作；探索式检查只走这次改动直接涉及的入口；独立验证固定派**一个**验证者。`tasks.md`、`review.md`、`test-report.md`、`verdict.md`（含验证快照）仍然要有。
+
 **接着做**：看 test-report.md 和 verdict.md 到了哪一步，从没完成的步骤继续。**返工回来时**（tasks.md 里有刚完成的“返工”任务）：第 1、2 步已经做过，从第 3 步补齐返工相关的测试开始，然后第 5–8 步；第 8 步按 verification.md 规则 4 决定派一个验证者还是全套。
 
 ## 1. 准备环境
@@ -22,11 +24,11 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 2. 读这两个环境的 `data` 规则，整个阶段都按它来（共享环境只动测试数据，production 只读）。本地跑测试和服务时，`.devflow.yml` 的 `safety_valves` 一律保持关闭，测试不访问真实的外部服务和付费服务。
 3. 有浏览器验收场景时，按 [references/browser.md](references/browser.md) 选测试浏览器（本机无头 / 固定 CDP / 云浏览器；云浏览器只能测公网地址，用之前按 verification.md 读当天的用量账，对照 `budget`），把 `devflow-browser.js` 复制到项目的 `tests/e2e/`（已有就跳过；项目已有浏览器测试入口时跟随项目，不复制、不另起一套），检查能连上、能打开被测地址。任何适用测试需要 local 服务时，先用 `environments.local.start` 启动服务。
 
-没有浏览器验收场景的纯后端任务，将浏览器连接、界面探索和录屏记为“不适用”；仍执行 API、数据库或库测试、环境数据规则、项目验证 skill 和独立验证。不能以没有录屏为由跳过实际适用的浏览器验收场景。
+没有浏览器验收场景的纯后端任务，将浏览器连接、界面探索和录屏记为“不适用”；仍执行 API、数据库或库测试、环境数据规则和独立验证，并按规模规则使用项目验证 skill。不能以没有录屏为由跳过实际适用的浏览器验收场景。
 
 ## 2. 项目验证 skill
 
-看项目里有没有 `verify-<项目名>` skill（`.claude/skills/` 或 `.agents/skills/` 下）。没有就按 [references/verify-skill.md](references/verify-skill.md) 生成，并实际跑通一次；有就读它，检查本需求涉及的功能在它的功能清单里，没有就补上。
+看项目里有没有 `verify-<项目名>` skill（`.claude/skills/` 或 `.agents/skills/` 下）。没有就按 [references/verify-skill.md](references/verify-skill.md) 生成，并实际跑通一次（小规模不生成，见上）；有就读它，检查本需求涉及的功能在它的功能清单里，没有就补上。
 
 后面的探索式检查和独立验证都按它操作项目。
 
@@ -34,16 +36,17 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 读 spec 的全部场景和 tasks.md 的“测试计划”“容易出问题的情况”，列对照表（场景 → 层级 → 测试 → 状态），每个场景至少一个测试。确实没法测的写明原因。
 
-若 review.md 有待验证项，把最小实验并入对应场景，没有对应场景就另列一行。引用原评审位置，记录复现或排除的证据，或仍缺的条件和下一步。
+若 review.md 有待验证项，把最小实验并入对应场景，没有对应场景就另列一行。引用原评审位置，记录复现或排除的证据，或仍缺的条件和下一步，写进 test-report.md 的“待验证项”一节。
 
 - **单元、集成**：补齐缺的。具体值、精确断言；覆盖空、零、超长、非法、重复、无权限；互相独立。
 - **浏览器**：每个“浏览器”场景写一个 Playwright 测试，提交进仓库，写法见 [references/e2e-example.md](references/e2e-example.md)：有 CDP 地址时连远程浏览器，没有时用本机无头浏览器；关键场景最后调用 `evidence('<场景编号>')` 截图。按 browser.md 的“运行脚本化测试”在 `e2e_env` 上运行。
+- **端到端（没有界面）**：每个“端到端”场景用项目自己的测试框架写一个测试，从用户入口操作（执行命令看输出和退出码、发 HTTP 请求看响应、写一个只用公开接口的调用方脚本），提交进仓库；关键场景的实际输出存进需求文件夹的 `evidence/`（文本文件，文件名用场景编号）。
 
 有界面改动时，读 [dev-preview](../dev-preview/SKILL.md)，从现有用例选一条关键流程随测试保留短录屏；已有同版本录像可复用。纯后端任务不强制录屏，录制能力不可用时明确交付截图替代。
 
 ## 4. 探索式检查
 
-有浏览器验收场景时，按 verify skill 和 [references/explore-checklist.md](references/explore-checklist.md)，把本需求涉及的页面像用户一样实际用一遍，问题编号 `X1`、`X2`…，记录严重程度、复现步骤、截图。只用测试浏览器（browser.md 的“探索式检查用的 Playwright MCP”）。
+有浏览器验收场景时，按 verify skill 和 [references/explore-checklist.md](references/explore-checklist.md)，把本需求涉及的页面像用户一样实际用一遍，问题编号 `X1`、`X2`…，记录严重程度、复现步骤、截图。只用测试浏览器（browser.md 的“探索式检查用的 Playwright MCP”）。没有界面时，按 verify skill 的操作方式把入口实际用一遍，清单见 explore-checklist.md 的“没有界面时”，证据记命令和实际输出。
 
 ## 5. 修复
 
@@ -58,7 +61,7 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
 
 ## 6. 全量运行和测试报告
 
-运行全部测试（`commands.test`，以及在 `e2e_env` 上运行本次适用的 `commands.e2e`），附实际输出。没有浏览器场景时，仅将浏览器专用项记为“不适用”，不能跳过 API、数据库、库测试或适用的非浏览器 e2e。按 [references/report-template.md](references/report-template.md) 写 `test-report.md`（每轮覆盖）。适用的浏览器测试没做或只做了一部分，在报告开头醒目写明原因。
+运行全部测试（`commands.test`，以及在 `e2e_env` 上运行本次适用的 `commands.e2e`），附实际输出。没有浏览器场景时，仅将浏览器专用项记为“不适用”，不能跳过 API、数据库、库测试或适用的非浏览器 e2e。按 [references/report-template.md](references/report-template.md) 写 `test-report.md`（每轮覆盖）。适用的端到端测试（有界面的是浏览器测试）没做或只做了一部分，在报告开头醒目写明原因。
 
 按 dev-preview 核对本轮录屏与被测代码、场景和断言结果，完成“交付预览”一节；返工改变相关行为时重新录制受影响场景。录像仅便于 review，不代替测试和下面的独立验证。
 
@@ -85,12 +88,12 @@ description: 测试和验收（devflow 第 4 阶段）。在使用 devflow 的�
   - **L1**：状态和阶段先不改；汇总末尾请用户回复，状态行写 `待关口：C`，提交，这一轮结束。回复后按 gates.md 的表处理（状态“已验证”、阶段 `dev-release`）。
     例外：这一轮是返工复验，而返工任务的来源写着“关口 C 已放行，先改 …”（gates.md“通过，但先改一下”）时，复验通过就不再问，直接按已给的放行改为“已验证”、进入 dev-release，汇总里说明。
   - **L2 / L3**：状态改为“已验证”，阶段改为 `dev-release`，提交，然后读 `../dev-release/SKILL.md` 并执行。
-- **缺少必验条件的证据**：在 test-report.md 和 verdict.md 写明缺少的环境、数据或操作，以及恢复验证的条件。允许的环境就绪后从对应场景复验；只有需要改代码的已证实问题进入开发返工。
+- **缺少必验条件的证据**：按 verification.md“结论怎么用”表里“缺少验证条件”一行处理（不回开发，记 `c<n>`）；缺什么同时写进 test-report.md（来自评审待验证项的写在“待验证项”一节，其余写在“未覆盖和遗留”）。只有需要改代码的已证实问题进入开发返工。
 - **不通过且需要修复**：每个拦下的问题在 tasks.md 加一个“返工”任务（来源写 `X<n>`），状态改回“开发中”，阶段改为 `dev-build`，读 `../dev-build/SKILL.md` 并执行；修完会依次回到这里，按 verification.md 规则 4 重新验证。同一个问题 3 轮不过，记 `c<n>` 交给用户。
 
 ## 不要做的事
 
 - 不改测试迁就错误的实现。
 - 不用操作用户个人浏览器的工具（Claude in Chrome、桌面内置浏览器、computer use）。
-- 适用的浏览器测试没做不能算通过；独立验证没做不能放行。
+- 适用的端到端测试没做不能算通过（有界面的是浏览器测试）；独立验证没做不能放行。
 - 不违反环境的数据规则：共享环境只动测试数据，production 只读。

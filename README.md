@@ -28,10 +28,10 @@ flowchart LR
 
 | 阶段 | skill | 结束于 |
 |------|-------|--------|
-| 1 需求 | `dev-requirements` | **关口 A**（人）：需求确认，附 vibeview 效果页 |
+| 1 需求 | `dev-requirements` | **关口 A**（人）：需求确认，附效果页 |
 | 2 设计 | `dev-design` | **机器关口 B**：方案验证 |
 | 3 开发 | `dev-build`（调用 `dev-review`） | **可提测**：任务完成、测试全过、评审无严重问题 |
-| 4 测试 | `dev-test` | **机器关口 C**：没写过代码的验证者在真实浏览器里独立验证 |
+| 4 测试 | `dev-test` | **机器关口 C**：没写过代码的验证者在真实环境里独立验证（有界面用测试浏览器，没有界面从命令行或接口操作） |
 | 5 发布 | `dev-release` | **合并**（验证快照与平台保护）→ **上生产**（人按范围确认） |
 
 贯穿所有阶段：`dev-workflow`（总纲：状态、续做、自主等级、共用规则）、`dev-review`（通用评审，也可单独用）。
@@ -40,7 +40,7 @@ flowchart LR
 
 ## 机器验证
 
-放行只认验证结论，不认 CI 全绿：验证者没写过这段代码（优先同级别的其他模型，没有就用同一模型的全新子 agent）；在真实环境里跑；每个问题要有运行证据；结论绑定候选和目标分支 tip 的完整代码树快照，任一代码树变化就复验，只有纯流程产物更新可沿用结论；放松检查一律交给人。每个项目会生成一个 `verify-<项目名>` skill，写清怎样像用户一样操作这个应用。
+放行只认验证结论，不认 CI 全绿：验证者没写过这段代码（优先同级别的其他模型，没有就用同一模型的全新子 agent）；在真实环境里跑（网页用测试浏览器走一遍，命令行、API、库从用户实际入口操作）；每个问题要有运行证据；结论绑定候选和目标分支 tip 的完整代码树快照，任一代码树变化就复验，只有纯流程产物更新可沿用结论；放松检查一律交给人。每个项目会生成一个 `verify-<项目名>` skill，写清怎样像用户一样操作这个应用。
 
 ## 自主等级
 
@@ -49,6 +49,8 @@ flowchart LR
 | L1 跟着看（新项目默认） | 关口 A；机器关口通过后看一眼；合并、上生产前确认 |
 | L2 常规 | 关口 A；机器关口自动放行，你看汇总；平台能保护已验证的合并结果时自动合并；上生产按范围确认 |
 | L3 批量 | 一批需求一次确认；平台能保护已验证的合并结果时自动合并；上生产按范围确认 |
+
+合并由谁做可以单独配置：`.devflow.yml` 的 `release.merge`（或本机配置的 `merge`）写 `human` 时，所有等级下 AI 只做到开 PR、等 CI、验证，合并由你来做；默认 `auto`，按上表。
 
 难以回头的决定、改你定下的需求、放松检查：只暂停那一项，其余照常推进。上生产、删数据、强推、对外发消息永远要你确认。状态、度量和批次索引写回默认分支前也检查生产影响。会触发生产的写回需要覆盖该动作的批准，影响不明时保留待写回。
 
@@ -95,7 +97,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1          # status / unins
 1. 装好 skills（上面）。
 2. 进一个你想试的项目（git 仓库），对 Claude Code 或 Codex 说：“用 devflow 做 <一个小需求>”。
 3. 第一次会生成 `.devflow.yml` 草稿，在关口 A 请你确认；新项目默认 L1，每个机器关口后都会请你看一眼。
-4. 想看页面：装好 vibeview 的 `dview` 并设置 `DVIEW_URL`、`DVIEW_TOKEN`；没有也能跑，页面只留在本地 `docs/changes/<需求>/pages/`。
+4. 想要可分享的页面链接（可选）：装好 vibeview 的 `dview` 并设置 `DVIEW_URL`、`DVIEW_TOKEN`；没有也能跑，页面只留在本地 `docs/changes/<需求>/pages/`。
 
 ## 每台机器配置一次
 
@@ -110,7 +112,7 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1          # status / unins
    codex mcp add playwright -- npx @playwright/mcp@latest --cdp-endpoint "$DEVFLOW_BROWSER_CDP"
    ```
    添加时地址会被固定下来，浏览器地址变了要重新添加。
-4. vibeview：装好 `dview`，设置 `DVIEW_URL` 和 `DVIEW_TOKEN`。没有也能用，页面会只留在本地。
+4. 想要可分享的页面链接（可选）：装好 vibeview 的 `dview`，设置 `DVIEW_URL` 和 `DVIEW_TOKEN`。没有也能用，页面会只留在本地。
 
 ## 每个项目
 
@@ -125,6 +127,12 @@ powershell -ExecutionPolicy Bypass -File .\install.ps1          # status / unins
 - 关口和汇总回复：`all` 全部按默认；`d2 B`、`c1 同意`、`Q3 B`、`H2 改为 …`、`E1 加入`、`按 L2 跑`、`问 d3`、`重做 <原因>`
 - 单独用某个阶段：“评审一下这段代码”“跑一下测试”——找不到需求文件夹时只做这一步，不会自动往下走
 - 交付录屏：“用 dev-preview 把这个功能的关键操作录给我看”——复用测试环境，交付视频和范围说明，不自动部署或修改验收结论
+
+## 开发这套 skill
+
+```bash
+python3 -m unittest discover -s tests   # 跑脚本测试
+```
 
 ## 许可证
 

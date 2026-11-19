@@ -1,6 +1,6 @@
 ---
 name: dev-requirements
-description: 需求讨论、需求评审与需求文档（devflow 第 1 阶段，用户必须参与的阶段）。用户提出新功能、新项目想法、较大的行为改动，或要写需求文档/PRD/spec 时使用（new feature, requirements, PRD, spec）。先读代码，做前提挑战、产品方案和范围模式评审（借鉴 gstack），把理解、前提、范围、问题合成一条带推荐答案的消息，写出带验收场景和完成条件的 spec，生成 vibeview 效果页，到关口 A 请用户确认（L3 时一批需求一次确认）。单纯的 bug 修复先判断规模，微小的直接修。
+description: 需求讨论、需求评审与需求文档（devflow 第 1 阶段，用户必须参与的阶段）。用户提出新功能、新项目想法、较大的行为改动，或要写需求文档/PRD/spec 时使用（new feature, requirements, PRD, spec）。先读代码，做前提挑战、产品方案和范围模式评审（借鉴 gstack），把理解、前提、范围、问题合成一条带推荐答案的消息，写出带验收场景和完成条件的 spec，生成效果页（配置了预览服务时上传），到关口 A 请用户确认（L3 时一批需求一次确认）。单纯的 bug 修复先判断规模，微小的直接修。
 ---
 
 # dev-requirements：需求

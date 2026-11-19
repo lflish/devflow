@@ -80,7 +80,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 
 <section id="tldr">
   <h2>一句话 <span class="new">第 2 版</span></h2>
-  <p class="lead"><b>需求 → 设计 → 开发 → 测试 → 发布</b>。人只做两类事：<b>定方向</b>（需求确认）和<b>放行不可逆的动作</b>（上生产）。方案、验收、合并由<b>机器关口</b>放行：没写过这段代码的验证 agent 在真实环境里跑一遍，给出“通过”才往下走。人看的是事后汇总，不是逐个确认。</p>
+  <p class="lead"><b>需求 → 设计 → 开发 → 测试 → 发布</b>。人只做两类事：<b>定方向</b>（需求确认）和<b>放行不可逆的动作</b>（上生产）。方案、验收、合并由<b>机器关口</b>放行（合并也可以配置成由你来做）：没写过这段代码的验证 agent 在真实环境里跑一遍，给出“通过”才往下走。人看的是事后汇总，不是逐个确认。</p>
   <div class="band">
     <div class="ph"><div class="n">阶段 1</div><div class="t">需求</div><div class="s">dev-requirements</div><div class="g"><span class="chip c-human">人：关口 A</span></div></div>
     <div class="ph"><div class="n">阶段 2</div><div class="t">设计</div><div class="s">dev-design</div><div class="g"><span class="chip c-mach">机器关口 B</span></div></div>
@@ -129,7 +129,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
   <div class="grid3">
     <div class="card"><h4><span class="chip c-mach">通过</span></h4><p>往下走，进汇总。</p></div>
     <div class="card"><h4><span class="chip c-auto">通过，有备注</span></h4><p>往下走，备注进后续清单和汇总。</p></div>
-    <div class="card"><h4><span class="chip c-bad">不通过</span></h4><p>回到开发修复，修完重新验证。同一问题 3 轮不过才找你。</p></div>
+    <div class="card"><h4><span class="chip c-bad">不通过</span></h4><p>回到开发修复，修完重新验证。同一问题 3 轮不过才找你（方案验证最多 2 轮）。</p></div>
   </div>
   <h3>项目专属的验证 skill（借鉴 pstack create-verification-skill）</h3>
   <p>每个项目第一次进入测试阶段时，生成一个 <code>verify-&lt;项目名&gt;</code> skill，写清：怎么启动、怎么检查实例状态、怎么像用户一样操作（真实的选择器和命令）、证据存哪、怎么清理；再为 3–5 个主要功能各写一份“怎么操作、看到什么算对”。生成后必须实际跑通一个功能才算交付。之后每次验证都用它，不再临时摸索。</p>
@@ -137,7 +137,7 @@ footer{color:var(--muted);font-size:12.5px;text-align:center;margin-top:24px}
 
 <section id="levels">
   <h2>自主等级：你想参与多少 <span class="new">新</span></h2>
-  <p>写在 <code>.devflow.yml</code> 的 <code>autonomy</code>，也可以在提需求时说“这个按 L3 跑”。</p>
+  <p>写在 <code>.devflow.yml</code> 的 <code>autonomy</code>，也可以在提需求时说“这个按 L3 跑”。合并由谁做另由 <code>release.merge</code> 决定：写 <code>human</code> 时所有等级都由你合并。</p>
   <div class="tbl"><table>
     <tr><th>等级</th><th>适用</th><th>你参与的点</th></tr>
     <tr><td><b>L1 跟着看</b></td><td>刚开始用、新项目、高风险改动</td><td>关口 A；机器关口 B、C 通过后再请你看一眼；合并和上生产前确认</td></tr>
@@ -179,7 +179,7 @@ environments:
     data: 可随意读写，可重置
   staging:
     url_env: STAGING_URL
-    deploy: "使用 $deploy-view 部署到 staging"
+    deploy: "./scripts/deploy.sh staging"
     data: 共享环境：只能用 e2e- 开头的测试数据，用完清理
     account_env: [STAGING_TEST_USER, STAGING_TEST_PASS]
   production:
@@ -248,7 +248,7 @@ projects:
         <li>选方案：能实验的做原型定，其余按原则选</li>
         <li>技术方案：结构、接口、数据、状态、安全、需求覆盖</li>
         <li>前置验证：设计依赖的前提实际跑一遍</li>
-        <li>测试计划：每个场景分到单元 / 集成 / 浏览器</li>
+        <li>测试计划：每个场景分到单元 / 集成 / 端到端（网页用浏览器）</li>
         <li>拆任务：文件、接口、对应场景、测试断言、完成定义</li>
         <li><span class="chip c-agent">子 agent</span> 独立工程评审（最后跑）</li></ol></div>
       <div class="k">产物</div><div class="v"><code>design.md</code>、<code>tasks.md</code>、方案简报（进汇总页）</div>
@@ -286,8 +286,8 @@ projects:
         <li><span class="chip c-agent">子 agent</span><span class="chip c-browser">浏览器</span> <b>独立验证</b>：没写代码的验证者重跑测试、在真实浏览器里走每个关键场景、审 diff，给出结论（绑定 commit）</li>
         <li><span class="chip c-page">vibeview</span> 更新汇总页：结论、截图、待你处理的事</li></ol></div>
       <div class="k">产物</div><div class="v">浏览器测试代码、<code>test-report.md</code>（含验证结论）、<code>evidence/</code></div>
-      <div class="k">结束于</div><div class="v"><span class="chip c-mach">机器关口 C</span> 结论“通过”或“通过，有备注” → “已完成”。“不通过” → 回开发，修完重新验证</div>
-      <div class="k">不做的事</div><div class="v">不改测试迁就错误的实现；不用操作你个人浏览器的工具；浏览器测试没做不能算通过</div>
+      <div class="k">结束于</div><div class="v"><span class="chip c-mach">机器关口 C</span> 结论“通过”或“通过，有备注” → “已验证”。“不通过” → 回开发，修完重新验证</div>
+      <div class="k">不做的事</div><div class="v">不改测试迁就错误的实现；不用操作你个人浏览器的工具；端到端测试没做不能算通过（有界面的是浏览器测试）</div>
     </div>
   </div>
 
@@ -298,7 +298,7 @@ projects:
       <div class="k">做什么</div><div class="v"><ol>
         <li>CI（需要时）：和本地一样跑</li>
         <li>推送、开 PR、等 CI；合并前检查结论还覆盖要合并的代码，不覆盖就重新验证</li>
-        <li><span class="chip c-mach">合并</span> L2 / L3 凭验证结论合并；L1 先请你确认</li>
+        <li><span class="chip c-mach">合并</span> L2 / L3 凭验证结论合并；L1 先请你确认；配置 merge: human 时由你合并</li>
         <li><span class="chip c-human">你</span> 发布和上生产：一份清单一次确认</li>
         <li><span class="chip c-browser">浏览器</span> 上线后检查，结果进汇总</li></ol></div>
       <div class="k">产物</div><div class="v">合并记录、版本、上线记录</div>
@@ -316,7 +316,7 @@ projects:
     <tr><td><code>dev-review</code></td><td>通用评审：开发阶段调用；你单独说“评审一下这段代码”时只给结果、不改代码</td></tr>
     <tr><td class="muted">复盘</td><td class="muted">以后再加：把反复出现的问题变成自动检查（升到 L2 的第 4 个条件会用到）</td></tr>
   </table></div>
-  <p style="margin-top:10px">状态：草案 → 已确认 → 开发中 → 测试中 → 已完成 → 已合并 → 已发布；任何时候可以“搁置”。</p>
+  <p style="margin-top:10px">状态：草案 → 已确认 → 开发中 → 测试中 → 已验证 → 已合并 → 已发布；任何时候可以“搁置”。</p>
 </section>
 
 <section id="why5">
